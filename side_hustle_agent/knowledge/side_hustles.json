@@ -1,0 +1,469 @@
+{
+  "side_hustles": [
+    {
+      "id": "ai-content-creation",
+      "name": "AI 内容代工",
+      "description": "使用 AI 工具为企业和个人代生产内容，包括文章、社交媒体帖子、产品描述、营销文案等。",
+      "startup_cost": 500,
+      "learning_curve": "基础技能",
+      "platform_rules": [
+        "知乎：禁止纯 AI 生成内容标注",
+        "小红书：需标注 AI 辅助",
+        "公众号：原创声明需实际贡献"
+      ],
+      "recent_cases": [
+        {"location": "上海", "income": 8500, "time": "2个月"},
+        {"location": "成都", "income": 5200, "time": "3个月"}
+      ],
+      "policy_risks": ["部分平台限制纯 AI 内容"],
+      "policy_benefits": ["数字经济扶持政策"],
+      "min_time_hours": 1.5,
+      "requires_appearance": false,
+      "location_requirements": [],
+      "income_potential": 12000,
+      "scalability": 5,
+      "stability": 3
+    },
+    {
+      "id": "no-source-ecommerce",
+      "name": "无货源电商",
+      "description": "在闲鱼、拼多多等平台开设店铺，从1688等渠道代发，无需囤货。",
+      "startup_cost": 1000,
+      "learning_curve": "基础技能",
+      "platform_rules": [
+        "闲鱼：禁止售假，禁止诱导私下交易",
+        "拼多多：押金制度，违规扣分",
+        "抖音小店：需营业执照"
+      ],
+      "recent_cases": [
+        {"location": "杭州", "income": 6000, "time": "1个月"},
+        {"location": "广州", "income": 8000, "time": "2个月"}
+      ],
+      "policy_risks": ["平台规则频繁变化", "价格战压缩利润"],
+      "policy_benefits": ["电商扶持政策", "灵活就业登记"],
+      "min_time_hours": 2.0,
+      "requires_appearance": false,
+      "location_requirements": [],
+      "income_potential": 15000,
+      "scalability": 4,
+      "stability": 3
+    },
+    {
+      "id": "digital-template",
+      "name": "数字模板销售",
+      "description": "制作并销售 Excel 模板、PPT 模板、简历模板、设计素材等数字产品。",
+      "startup_cost": 200,
+      "learning_curve": "中级技能",
+      "platform_rules": [
+        "小红书：可直接挂载商品链接",
+        "闲鱼：数字商品需标注",
+        "淘宝：需缴纳保证金"
+      ],
+      "recent_cases": [
+        {"location": "北京", "income": 4500, "time": "2个月"},
+        {"location": "深圳", "income": 7000, "time": "3个月"}
+      ],
+      "policy_risks": ["盗版侵权风险"],
+      "policy_benefits": ["知识产权保护"],
+      "min_time_hours": 1.0,
+      "requires_appearance": false,
+      "location_requirements": [],
+      "income_potential": 10000,
+      "scalability": 5,
+      "stability": 4
+    },
+    {
+      "id": "short-video-editing",
+      "name": "短视频剪辑代工",
+      "description": "为博主、企业提供短视频剪辑服务，包括剪辑、加字幕、调色、配音等。",
+      "startup_cost": 1500,
+      "learning_curve": "中级技能",
+      "platform_rules": [
+        "抖音：禁止搬运，原创内容优先",
+        "B站：支持创作者激励计划"
+      ],
+      "recent_cases": [
+        {"location": "成都", "income": 9000, "time": "2个月"},
+        {"location": "重庆", "income": 6500, "time": "3个月"}
+      ],
+      "policy_risks": ["甲方拖款风险"],
+      "policy_benefits": ["内容创业扶持"],
+      "min_time_hours": 2.0,
+      "requires_appearance": false,
+      "location_requirements": [],
+      "income_potential": 12000,
+      "scalability": 3,
+      "stability": 4
+    },
+    {
+      "id": "online-tutoring",
+      "name": "在线家教/答疑",
+      "description": "利用自身学科优势，在平台接单进行在线一对一辅导或答疑服务。",
+      "startup_cost": 300,
+      "learning_curve": "中级技能",
+      "platform_rules": [
+        "掌门一对一：需教师资格证",
+        "猿辅导：需相关专业背景",
+        "作业帮：需考核通过"
+      ],
+      "recent_cases": [
+        {"location": "武汉", "income": 7500, "time": "1个月"},
+        {"location": "南京", "income": 6000, "time": "2个月"}
+      ],
+      "policy_risks": ["平台抽成较高", "竞争激烈"],
+      "policy_benefits": ["教育行业补贴"],
+      "min_time_hours": 1.5,
+      "requires_appearance": true,
+      "location_requirements": [],
+      "income_potential": 10000,
+      "scalability": 3,
+      "stability": 4
+    },
+    {
+      "id": "freelance-writing",
+      "name": "自由撰稿",
+      "description": "为公众号、杂志、网站等撰写文章，按篇或按字计费。",
+      "startup_cost": 100,
+      "learning_curve": "中级技能",
+      "platform_rules": [
+        "公众号：需粉丝基础接广告",
+        "简书：支持打赏",
+        "知乎：盐选专栏计划"
+      ],
+      "recent_cases": [
+        {"location": "上海", "income": 5000, "time": "2个月"},
+        {"location": "北京", "income": 7000, "time": "3个月"}
+      ],
+      "policy_risks": ["稿费拖欠", "抄袭风险"],
+      "policy_benefits": ["内容创业扶持"],
+      "min_time_hours": 1.0,
+      "requires_appearance": false,
+      "location_requirements": [],
+      "income_potential": 8000,
+      "scalability": 3,
+      "stability": 3
+    },
+    {
+      "id": "mini-program-development",
+      "name": "小程序开发",
+      "description": "为企业或个人开发微信小程序，包括展示类、工具类、电商类小程序。",
+      "startup_cost": 3000,
+      "learning_curve": "高级技能",
+      "platform_rules": [
+        "微信小程序：需域名备案",
+        "支付宝小程序：需企业资质"
+      ],
+      "recent_cases": [
+        {"location": "深圳", "income": 20000, "time": "2个月"},
+        {"location": "杭州", "income": 15000, "time": "3个月"}
+      ],
+      "policy_risks": ["开发周期长", "甲方需求变更"],
+      "policy_benefits": ["高新技术创业扶持"],
+      "min_time_hours": 3.0,
+      "requires_appearance": false,
+      "location_requirements": [],
+      "income_potential": 30000,
+      "scalability": 4,
+      "stability": 3
+    },
+    {
+      "id": "resale-flipping",
+      "name": "二手闲置买卖",
+      "description": "在闲鱼等平台买卖二手物品，低买高卖赚取差价，或帮人代卖抽佣。",
+      "startup_cost": 500,
+      "learning_curve": "基础技能",
+      "platform_rules": [
+        "闲鱼：信用分影响曝光",
+        "转转：需缴纳保证金"
+      ],
+      "recent_cases": [
+        {"location": "广州", "income": 4000, "time": "1个月"},
+        {"location": "成都", "income": 3500, "time": "2个月"}
+      ],
+      "policy_risks": ["假货风险", "交易纠纷"],
+      "policy_benefits": ["循环经济政策支持"],
+      "min_time_hours": 1.5,
+      "requires_appearance": false,
+      "location_requirements": [],
+      "income_potential": 8000,
+      "scalability": 2,
+      "stability": 2
+    },
+    {
+      "id": "local-life-services",
+      "name": "本地生活服务",
+      "description": "提供本地化的生活服务，如家政、陪诊、宠物照顾、代排队等。",
+      "startup_cost": 200,
+      "learning_curve": "基础技能",
+      "platform_rules": [
+        "美团：需资质审核",
+        "58到家：需实名认证"
+      ],
+      "recent_cases": [
+        {"location": "上海", "income": 8000, "time": "1个月"},
+        {"location": "北京", "income": 7000, "time": "1个月"}
+      ],
+      "policy_risks": ["人身安全风险", "服务纠纷"],
+      "policy_benefits": ["上海家政时薪可达80-150元"],
+      "min_time_hours": 2.0,
+      "requires_appearance": true,
+      "location_requirements": ["需要线下跑动"],
+      "income_potential": 10000,
+      "scalability": 2,
+      "stability": 3
+    },
+    {
+      "id": "didi-driver",
+      "name": "网约车/代驾",
+      "description": "利用私家车或通过代驾平台提供出行服务。",
+      "startup_cost": 100,
+      "learning_curve": "基础技能",
+      "platform_rules": [
+        "滴滴：需双证（网约车驾驶员证、运输证）",
+        "代驾平台：需驾龄要求"
+      ],
+      "recent_cases": [
+        {"location": "杭州", "income": 9000, "time": "1个月"},
+        {"location": "成都", "income": 7500, "time": "1个月"}
+      ],
+      "policy_risks": ["车辆折旧", "疲劳驾驶风险"],
+      "policy_benefits": ["网约车合规司机补贴"],
+      "min_time_hours": 3.0,
+      "requires_appearance": true,
+      "location_requirements": ["需有车或租车"],
+      "income_potential": 12000,
+      "scalability": 2,
+      "stability": 4
+    },
+    {
+      "id": "livestream-assistant",
+      "name": "直播运营助理",
+      "description": "为带货主播提供场控、弹幕回复、中控台操作等助理工作。",
+      "startup_cost": 0,
+      "learning_curve": "基础技能",
+      "platform_rules": [
+        "抖音：实名认证",
+        "淘宝直播：需商家邀请"
+      ],
+      "recent_cases": [
+        {"location": "广州", "income": 5000, "time": "1个月"},
+        {"location": "深圳", "income": 6000, "time": "1个月"}
+      ],
+      "policy_risks": ["工作时间不固定"],
+      "policy_benefits": ["直播电商蓬勃发展"],
+      "min_time_hours": 2.5,
+      "requires_appearance": true,
+      "location_requirements": ["需要到直播间"],
+      "income_potential": 8000,
+      "scalability": 2,
+      "stability": 3
+    },
+    {
+      "id": "community-group-buy",
+      "name": "社区团购团长",
+      "description": "在微信群组织社区居民团购日用品、生鲜等，赚取佣金或差价。",
+      "startup_cost": 500,
+      "learning_curve": "基础技能",
+      "platform_rules": [
+        "多多买菜：团长佣金制度",
+        "美团优选：需预付货款"
+      ],
+      "recent_cases": [
+        {"location": "成都", "income": 4500, "time": "1个月"},
+        {"location": "武汉", "income": 4000, "time": "2个月"}
+      ],
+      "policy_risks": ["生鲜损耗风险", "竞争激烈"],
+      "policy_benefits": ["社区商业扶持"],
+      "min_time_hours": 2.0,
+      "requires_appearance": false,
+      "location_requirements": ["需有社区资源"],
+      "income_potential": 7000,
+      "scalability": 2,
+      "stability": 3
+    },
+    {
+      "id": "data-entry",
+      "name": "数据标注/录入",
+      "description": "为 AI 训练数据提供标注服务，包括图片标注、文本标注、语音转写等。",
+      "startup_cost": 0,
+      "learning_curve": "基础技能",
+      "platform_rules": [
+        "阿里众包：任务制",
+        "百度众测：需通过考核"
+      ],
+      "recent_cases": [
+        {"location": "郑州", "income": 3000, "time": "1个月"},
+        {"location": "石家庄", "income": 2800, "time": "1个月"}
+      ],
+      "policy_risks": ["单价低", "任务不稳定"],
+      "policy_benefits": ["AI数据服务需求大"],
+      "min_time_hours": 1.0,
+      "requires_appearance": false,
+      "location_requirements": [],
+      "income_potential": 4000,
+      "scalability": 1,
+      "stability": 2
+    },
+    {
+      "id": "translation",
+      "name": "翻译服务",
+      "description": "提供文档翻译、口译、字幕翻译等服务。",
+      "startup_cost": 0,
+      "learning_curve": "高级技能",
+      "platform_rules": [
+        "译客：需等级考核",
+        "有道人工翻译：需测试通过"
+      ],
+      "recent_cases": [
+        {"location": "上海", "income": 8000, "time": "1个月"},
+        {"location": "北京", "income": 9000, "time": "1个月"}
+      ],
+      "policy_risks": ["机器翻译竞争"],
+      "policy_benefits": ["语言服务出口退税"],
+      "min_time_hours": 1.5,
+      "requires_appearance": false,
+      "location_requirements": [],
+      "income_potential": 15000,
+      "scalability": 3,
+      "stability": 4
+    },
+    {
+      "id": "voice-over",
+      "name": "配音/有声书",
+      "description": "为短视频、广告、有声书等提供配音服务。",
+      "startup_cost": 2000,
+      "learning_curve": "中级技能",
+      "platform_rules": [
+        "喜马拉雅：需设备审核",
+        "蜻蜓FM：有声书录制规范"
+      ],
+      "recent_cases": [
+        {"location": "北京", "income": 6000, "time": "2个月"},
+        {"location": "上海", "income": 7000, "time": "2个月"}
+      ],
+      "policy_risks": ["设备投入风险"],
+      "policy_benefits": ["声音经济扶持"],
+      "min_time_hours": 1.5,
+      "requires_appearance": false,
+      "location_requirements": [],
+      "income_potential": 10000,
+      "scalability": 3,
+      "stability": 3
+    },
+    {
+      "id": "print-on-demand",
+      "name": "定制周边产品",
+      "description": "设计并销售定制 T 恤、帆布包、手机壳等 POD（按需打印）产品。",
+      "startup_cost": 500,
+      "learning_curve": "基础技能",
+      "platform_rules": [
+        "淘宝：需缴纳保证金",
+        "小红书：可直接挂载商品"
+      ],
+      "recent_cases": [
+        {"location": "广州", "income": 5500, "time": "2个月"},
+        {"location": "杭州", "income": 6000, "time": "2个月"}
+      ],
+      "policy_risks": ["版权风险", "物流成本"],
+      "policy_benefits": ["文创产业扶持"],
+      "min_time_hours": 1.5,
+      "requires_appearance": false,
+      "location_requirements": [],
+      "income_potential": 9000,
+      "scalability": 4,
+      "stability": 3
+    },
+    {
+      "id": "skill-coach",
+      "name": "技能培训教练",
+      "description": "在线或线下教授特定技能，如乐器、绘画、健身、编程等。",
+      "startup_cost": 1000,
+      "learning_curve": "高级技能",
+      "platform_rules": [
+        "抖音：可开直播课",
+        "腾讯课堂：需资质审核"
+      ],
+      "recent_cases": [
+        {"location": "成都", "income": 10000, "time": "1个月"},
+        {"location": "深圳", "income": 12000, "time": "1个月"}
+      ],
+      "policy_risks": ["竞争激烈"],
+      "policy_benefits": ["职业技能培训补贴"],
+      "min_time_hours": 2.0,
+      "requires_appearance": true,
+      "location_requirements": [],
+      "income_potential": 15000,
+      "scalability": 3,
+      "stability": 4
+    },
+    {
+      "id": "virtual-assistant",
+      "name": "虚拟助理",
+      "description": "为企业或个人提供远程行政助理服务，如邮件处理、日程管理、数据录入等。",
+      "startup_cost": 0,
+      "learning_curve": "基础技能",
+      "platform_rules": [
+        "Fiverr：国际化平台",
+        "猪八戒：国内威客平台"
+      ],
+      "recent_cases": [
+        {"location": "上海", "income": 6000, "time": "1个月"},
+        {"location": "北京", "income": 7000, "time": "1个月"}
+      ],
+      "policy_risks": ["时区差异"],
+      "policy_benefits": ["远程工作政策支持"],
+      "min_time_hours": 2.0,
+      "requires_appearance": false,
+      "location_requirements": [],
+      "income_potential": 10000,
+      "scalability": 3,
+      "stability": 4
+    },
+    {
+      "id": "social-media-manager",
+      "name": "社交媒体代运营",
+      "description": "为企业或个人管理社交媒体账号，包括内容策划、发布、粉丝互动、数据分析等。",
+      "startup_cost": 0,
+      "learning_curve": "中级技能",
+      "platform_rules": [
+        "各平台：禁止刷量",
+        "微博：企业蓝V认证"
+      ],
+      "recent_cases": [
+        {"location": "杭州", "income": 8000, "time": "1个月"},
+        {"location": "上海", "income": 10000, "time": "1个月"}
+      ],
+      "policy_risks": ["甲方期望管理"],
+      "policy_benefits": ["新媒体运营人才需求大"],
+      "min_time_hours": 2.5,
+      "requires_appearance": false,
+      "location_requirements": [],
+      "income_potential": 15000,
+      "scalability": 4,
+      "stability": 4
+    },
+    {
+      "id": "product-photography",
+      "name": "产品摄影",
+      "description": "为电商卖家提供产品拍摄服务，包括白底图、场景图、视频等。",
+      "startup_cost": 5000,
+      "learning_curve": "中级技能",
+      "platform_rules": [
+        "淘宝：需符合平台图片规范",
+        "1688：支持视频展示"
+      ],
+      "recent_cases": [
+        {"location": "广州", "income": 12000, "time": "1个月"},
+        {"location": "深圳", "income": 15000, "time": "1个月"}
+      ],
+      "policy_risks": ["设备投入大"],
+      "policy_benefits": ["电商服务需求旺盛"],
+      "min_time_hours": 2.0,
+      "requires_appearance": false,
+      "location_requirements": ["需有拍摄设备"],
+      "income_potential": 20000,
+      "scalability": 3,
+      "stability": 4
+    }
+  ]
+}
