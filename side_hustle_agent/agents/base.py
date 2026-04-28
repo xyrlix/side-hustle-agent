@@ -1,16 +1,16 @@
 """
 Agent 基类
+
+使用统一的 LLM Provider 接口，支持多种大模型。
 """
 
 from abc import ABC, abstractmethod
 from typing import Any
 
-import anthropic
-from anthropic import Anthropic
-
 from ..core.config import get_settings
 from ..core.memory import SharedMemory, get_memory
 from ..core.models import AgentState
+from ..llm import create_llm_provider, BaseLLMProvider
 
 
 class BaseAgent(ABC):
@@ -22,17 +22,30 @@ class BaseAgent(ABC):
         self.settings = get_settings()
         self.state = AgentState.IDLE
 
-        self._client: Anthropic | None = None
+        self._llm: BaseLLMProvider | None = None
 
     @property
-    def client(self) -> Anthropic:
-        """获取 Anthropic 客户端"""
-        if self._client is None:
-            api_key = self.settings.anthropic_api_key
+    def llm(self) -> BaseLLMProvider:
+        """获取 LLM Provider"""
+        if self._llm is None:
+            llm_config = self.settings.get_llm_config()
+            api_key = llm_config.get("api_key", "")
+
             if not api_key:
-                raise ValueError("ANTHROPIC_API_KEY is not set")
-            self._client = Anthropic(api_key=api_key)
-        return self._client
+                raise ValueError(
+                    f"LLM API Key not set. "
+                    f"Set {llm_config['provider'].upper()}_API_KEY environment variable "
+                    f"or configure llm_api_key in settings."
+                )
+
+            self._llm = create_llm_provider(
+                provider=llm_config["provider"],
+                api_key=api_key,
+                model=llm_config.get("model"),
+                **{k: v for k, v in llm_config.items() if k not in ["provider", "api_key", "model"]}
+            )
+
+        return self._llm
 
     def update_state(self, state: AgentState) -> None:
         """更新状态"""
@@ -45,22 +58,19 @@ class BaseAgent(ABC):
         pass
 
     def think(self, prompt: str, system_prompt: str | None = None) -> str:
-        """调用 LLM 进行推理"""
-        messages = [{"role": "user", "content": prompt}]
-
-        system_parts = []
+        """调用 LLM 进行推理（同步）"""
+        messages = []
         if system_prompt:
-            system_parts.append(system_prompt)
+            messages.append({"role": "system", "content": system_prompt})
+        messages.append({"role": "user", "content": prompt})
 
-        response = self.client.messages.create(
-            model=self.settings.anthropic_model,
-            max_tokens=2048,
-            temperature=self.settings.temperature,
-            system="\n".join(system_parts) if system_parts else None,
+        response = self.llm.chat(
             messages=messages,
+            temperature=self.settings.temperature,
+            max_tokens=2048,
         )
 
-        return response.content[0].text
+        return response.content
 
     async def think_async(self, prompt: str, system_prompt: str | None = None) -> str:
         """异步调用 LLM"""
