@@ -2,6 +2,7 @@
 API 路由
 """
 
+import os
 from typing import Any
 
 from fastapi import APIRouter
@@ -37,10 +38,27 @@ async def submit_feedback(
 async def get_config() -> dict[str, Any]:
     """获取当前 LLM 配置（不返回实际 API Key）"""
     config = get_runtime_config()
+    provider = config.get("provider") or os.getenv("LLM_PROVIDER", "deepseek")
+    model = config.get("model") or os.getenv("LLM_MODEL", "")
+
+    # 获取默认 model
+    if not model:
+        defaults = {
+            "deepseek": "deepseek-chat",
+            "minimax": "MiniMax-Text-01",
+            "qwen": "qwen-turbo",
+            "kimi": "moonshot-v1-8k",
+            "openai": "gpt-4o",
+            "anthropic": "claude-sonnet-4-20250514",
+        }
+        model = defaults.get(provider, "deepseek-chat")
+
+    has_api_key = bool(config.get("api_key") or os.getenv(f"{provider.upper()}_API_KEY") or os.getenv("LLM_API_KEY"))
+
     return {
-        "llm_provider": config.get("provider", "deepseek"),
-        "llm_api_key": "********",
-        "llm_model": config.get("model", "deepseek-chat"),
+        "llm_provider": provider,
+        "llm_api_key": "********" if has_api_key else "",
+        "llm_model": model,
     }
 
 
