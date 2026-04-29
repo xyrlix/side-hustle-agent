@@ -81,10 +81,18 @@ def start_frontend():
 
     frontend_dir = os.path.join(os.path.dirname(__file__), "frontend")
 
-    # 检查 npm
-    try:
-        subprocess.run(["npm", "--version"], capture_output=True, check=True)
-    except (subprocess.CalledProcessError, FileNotFoundError):
+    # 检查 npm - Windows 兼容
+    npm_path = None
+    for cmd in ["npm", "npm.cmd", "C:\\Program Files\\nodejs\\npm.cmd"]:
+        try:
+            result = subprocess.run([cmd, "--version"], capture_output=True, timeout=5)
+            if result.returncode == 0:
+                npm_path = cmd
+                break
+        except:
+            continue
+
+    if not npm_path:
         print(f"{Colors.RED}  ✗ npm 未安装，请先安装 Node.js{Colors.END}")
         return None
 
@@ -92,14 +100,14 @@ def start_frontend():
     node_modules = os.path.join(frontend_dir, "node_modules")
     if not os.path.exists(node_modules):
         print(f"  {Colors.YELLOW}首次运行，安装前端依赖...{Colors.END}")
-        result = subprocess.run(["npm", "install"], cwd=frontend_dir, capture_output=True)
+        result = subprocess.run([npm_path, "install"], cwd=frontend_dir, capture_output=True)
         if result.returncode != 0:
             print(f"{Colors.RED}  ✗ 依赖安装失败{Colors.END}")
             print(result.stderr.decode("utf-8", errors="ignore")[-300:])
             return None
 
     # 启动开发服务器
-    cmd = ["npm", "run", "dev", "--", "--port", "1420"]
+    cmd = [npm_path, "run", "dev", "--", "--port", "1420"]
     process = subprocess.Popen(
         cmd,
         cwd=frontend_dir,
