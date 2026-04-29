@@ -32,95 +32,110 @@ export default function UserForm({ onSubmit, disabled }: Props) {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
+      {/* City and Goal Row */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* City */}
         <div>
           <label className="block text-base font-medium text-gray-700 mb-2">所在城市</label>
           <select
             value={city}
             onChange={e => setCity(e.target.value)}
             disabled={disabled}
-            className="w-full px-4 py-3 text-lg border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white"
+            className="w-full px-4 py-3.5 text-lg border-2 border-gray-200 rounded-xl focus:border-purple-400 focus:ring-0 bg-white transition-colors"
           >
             {CITIES.map(c => <option key={c} value={c}>{c}</option>)}
           </select>
         </div>
-
-        {/* Goal */}
         <div>
-          <label className="block text-base font-medium text-gray-700 mb-2">月收入目标 (元)</label>
-          <input
-            type="number"
-            value={goal}
-            onChange={e => setGoal(Number(e.target.value))}
-            disabled={disabled}
-            min="1000"
-            max="100000"
-            className="w-full px-4 py-3 text-lg border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-          />
+          <label className="block text-base font-medium text-gray-700 mb-2">月收入目标</label>
+          <div className="relative">
+            <input
+              type="number"
+              value={goal}
+              onChange={e => setGoal(Number(e.target.value))}
+              disabled={disabled}
+              min="1000"
+              max="100000"
+              className="w-full px-4 py-3.5 text-lg border-2 border-gray-200 rounded-xl focus:border-purple-400 focus:ring-0 transition-colors"
+            />
+            <span className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400">元/月</span>
+          </div>
         </div>
       </div>
 
       {/* Skills */}
       <div>
-        <label className="block text-base font-medium text-gray-700 mb-2">拥有技能 (用逗号分隔)</label>
+        <label className="block text-base font-medium text-gray-700 mb-2">
+          拥有技能 <span className="text-gray-400 text-sm">(用逗号分隔)</span>
+        </label>
         <input
           type="text"
           value={skills}
           onChange={e => setSkills(e.target.value)}
           disabled={disabled}
-          placeholder="如: Python, Excel, 剪辑, 设计"
-          className="w-full px-4 py-3 text-lg border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+          placeholder="如: Python, Excel, 剪辑, 设计, 写作"
+          className="w-full px-4 py-3.5 text-lg border-2 border-gray-200 rounded-xl focus:border-purple-400 focus:ring-0 transition-colors"
         />
+        <p className="text-sm text-gray-500 mt-2">描述您的技能，我们将为您匹配合适的副业</p>
       </div>
 
+      {/* Time and Risk Row */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* Time */}
         <div>
           <label className="block text-base font-medium text-gray-700 mb-2">每天可用时间</label>
           <select
             value={time}
             onChange={e => setTime(e.target.value)}
             disabled={disabled}
-            className="w-full px-4 py-3 text-lg border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white"
+            className="w-full px-4 py-3.5 text-lg border-2 border-gray-200 rounded-xl focus:border-purple-400 focus:ring-0 bg-white transition-colors"
           >
             {TIME_OPTIONS.map(t => <option key={t} value={t}>{t}</option>)}
           </select>
         </div>
-
-        {/* Risk */}
         <div>
           <label className="block text-base font-medium text-gray-700 mb-2">风险偏好</label>
           <select
             value={risk}
             onChange={e => setRisk(e.target.value)}
             disabled={disabled}
-            className="w-full px-4 py-3 text-lg border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white"
+            className="w-full px-4 py-3.5 text-lg border-2 border-gray-200 rounded-xl focus:border-purple-400 focus:ring-0 bg-white transition-colors"
           >
             {RISK_OPTIONS.map(r => <option key={r} value={r}>{r}</option>)}
           </select>
         </div>
       </div>
 
-      {/* Avoid Appear */}
-      <div className="flex items-center">
+      {/* Avoid Appear Checkbox */}
+      <div className="flex items-center p-4 bg-gray-50 rounded-xl">
         <input
           type="checkbox"
           id="avoidAppear"
           checked={avoidAppear}
           onChange={e => setAvoidAppear(e.target.checked)}
           disabled={disabled}
-          className="w-5 h-5 text-purple-600 border-gray-300 rounded focus:ring-purple-500"
+          className="w-5 h-5 text-purple-600 border-2 border-gray-300 rounded focus:ring-purple-500"
         />
-        <label htmlFor="avoidAppear" className="ml-3 text-base text-gray-700">厌恶露脸</label>
+        <label htmlFor="avoidAppear" className="ml-3 text-base text-gray-700">
+          我不想露脸（选择不需要抛头露面的副业）
+        </label>
       </div>
 
+      {/* Submit Button */}
       <button
         type="submit"
         disabled={disabled}
-        className="w-full py-4 px-6 text-xl bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-bold rounded-xl shadow-lg hover:from-purple-700 hover:to-indigo-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-[1.02]"
+        className="w-full py-4 px-6 text-xl bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-bold rounded-xl shadow-lg hover:from-purple-700 hover:to-indigo-700 active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
       >
-        {disabled ? "分析中..." : "获取推荐"}
+        {disabled ? (
+          <span className="flex items-center justify-center gap-2">
+            <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
+              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+            </svg>
+            分析中...
+          </span>
+        ) : (
+          "🚀 获取推荐"
+        )}
       </button>
     </form>
   );

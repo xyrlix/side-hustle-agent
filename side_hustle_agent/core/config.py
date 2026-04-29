@@ -6,10 +6,13 @@
 - LLM_API_KEY: API Key
 - LLM_MODEL: 模型名称 (可选，有默认值)
 - 其他 Provider 特定变量: DEEPSEEK_API_KEY, QWEN_API_KEY 等
+
+也支持通过 /api/config 接口配置
 """
 
 import os
 from functools import lru_cache
+from typing import Any
 
 from pydantic import Field
 from pydantic_settings import BaseSettings
@@ -56,34 +59,36 @@ class Settings(BaseSettings):
     class Config:
         env_prefix = ""
         case_sensitive = False
-        extra = "allow"  # 允许额外字段
+        extra = "allow"
 
     def get_llm_config(self) -> dict:
         """获取 LLM 配置"""
-        # 优先使用新配置
-        if self.llm_api_key:
+        # 优先使用内存配置（运行时通过 API 设置的）
+        if hasattr(self, '_runtime_api_key') and self._runtime_api_key:
+            api_key = self._runtime_api_key
+            provider = getattr(self, '_runtime_provider', self.llm_provider)
+            model = getattr(self, '_runtime_model', self.llm_model) or self.llm_model
+        elif self.llm_api_key:
             api_key = self.llm_api_key
-        elif self.anthropic_api_key:  # 兼容旧配置
+            provider = self.llm_provider
+            model = self.llm_model
+        elif self.anthropic_api_key:
             api_key = self.anthropic_api_key
+            provider = "anthropic"
+            model = self.anthropic_model or "claude-sonnet-4-20250514"
         else:
             # 尝试从环境变量读取
             provider = self.llm_provider
-            if provider == "deepseek":
-                api_key = os.getenv("DEEPSEEK_API_KEY", "")
-            elif provider == "qwen":
-                api_key = os.getenv("QWEN_API_KEY", "")
-            elif provider == "kimi":
-                api_key = os.getenv("KIMI_API_KEY", "")
-            elif provider == "minimax":
-                api_key = os.getenv("MINIMAX_API_KEY", "")
-            elif provider == "openai":
-                api_key = os.getenv("OPENAI_API_KEY", "")
-            elif provider == "anthropic":
-                api_key = os.getenv("ANTHROPIC_API_KEY", "")
-            else:
-                api_key = ""
+            env_map = {
+                "deepseek": "DEEPSEEK_API_KEY",
+                "qwen": "QWEN_API_KEY",
+                "kimi": "KIMI_API_KEY",
+                "minimax": "MINIMAX_API_KEY",
+                "openai": "OPENAI_API_KEY",
+                "anthropic": "ANTHROPIC_API_KEY",
+            }
+            api_key = os.getenv(env_map.get(provider, "LLM_API_KEY"), "")
 
-        model = self.llm_model
         if not model:
             defaults = {
                 "deepseek": "deepseek-chat",
@@ -96,19 +101,56 @@ class Settings(BaseSettings):
             model = defaults.get(provider, "deepseek-chat")
 
         config = {
-            "provider": self.llm_provider,
+            "provider": provider,
             "api_key": api_key,
             "model": model,
         }
 
-        # Provider 特定配置
         if self.llm_provider == "minimax" and self.minimax_group_id:
             config["group_id"] = self.minimax_group_id
 
         return config
+
+    def update_llm_config(self, provider: str, api_key: str, model: str = "") -> None:
+        """运行时更新 LLM 配置"""
+        self._runtime_provider = provider
+        self._runtime_api_key = api_key
+        self._runtime_model = model
+
+    def get_public_config(self) -> dict:
+        """获取公开配置（不含敏感信息）"""
+        return {
+            "llm_provider": self.llm_provider,
+            "llm_api_key": "********" if self.llm_api_key else "",
+            "llm_model": self.llm_model or self.get_llm_config().get("model", ""),
+        }
 
 
 @lru_cache
 def get_settings() -> Settings:
     """获取配置单例"""
     return Settings()
+
+
+# 全局配置存储（用于 API 配置）
+_runtime_config: dict[str, Any] = {}
+
+
+def update_runtime_config(provider: str, api_key: str, model: str = "") -> None:
+    """更新运行时配置"""
+    global _runtime_config
+    _runtime_config = {
+        "provider": provider,
+        "api_key": api_key,
+        "model": model,
+    }
+    settings = get_settings()
+    settings.update_llm_config(provider, api_key, model)
+
+
+def get_runtime_config() -> dict:
+    """获取运行时配置"""
+    global _runtime_config
+    if _runtime_config:
+        return _runtime_config.copy()
+    return {"llm_provider": "deepseek", "llm_api_key": "", "llm_model": ""}
