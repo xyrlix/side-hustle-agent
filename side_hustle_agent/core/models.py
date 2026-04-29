@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from datetime import datetime
 from enum import Enum
-from typing import Annotated
+from typing import Annotated, Any
 
 from pydantic import BaseModel, Field
 
@@ -138,7 +138,7 @@ class MemoryEntry(BaseModel):
     """记忆条目"""
     agent: str
     key: str
-    value: dict
+    value: Any
     timestamp: datetime = Field(default_factory=datetime.now)
 
 
