@@ -8,8 +8,6 @@ import subprocess
 import sys
 import os
 import time
-import threading
-import signal
 
 
 class Colors:
@@ -32,9 +30,8 @@ def check_api_key():
     """检查 API Key 是否设置"""
     api_key = os.getenv("DEEPSEEK_API_KEY") or os.getenv("LLM_API_KEY")
     if not api_key:
-        print(f"{Colors.YELLOW}[提示] 请设置 DEEPSEEK_API_KEY 环境变量{Colors.END}")
-        print(f"  Windows: $env:DEEPSEEK_API_KEY='your_key_here'")
-        print(f"  Linux/Mac: export DEEPSEEK_API_KEY='your_key_here'")
+        print(f"{Colors.YELLOW}[提示] 未检测到 API Key{Colors.END}")
+        print(f"  请在界面右上角 ⚙️ 设置或设置环境变量")
         print()
     return bool(api_key)
 
@@ -49,18 +46,23 @@ def start_backend():
         cmd,
         stdout=subprocess.PIPE,
         stderr=subprocess.STDOUT,
-        env=os.environ.copy()
+        env=os.environ.copy(),
+        text=True,
+        bufsize=1,
     )
 
-    # 等待后端启动
-    for i in range(15):
-        time.sleep(1)
-        if process.poll() is not None:
-            print(f"{Colors.RED}  ✗ 后端启动失败{Colors.END}")
-            output = process.stdout.read().decode("utf-8", errors="ignore")
-            print(output[-500:] if output else "")
-            return None
+    # 等待后端启动并输出日志
+    started = False
+    for i in range(20):
+        time.sleep(0.5)
 
+        # 输出实时日志
+        if process.stdout:
+            line = process.stdout.readline()
+            if line:
+                print(f"  {line.rstrip()}")
+
+        # 检查是否启动成功
         try:
             import urllib.request
             response = urllib.request.urlopen("http://localhost:8000/health", timeout=1)
@@ -68,10 +70,19 @@ def start_backend():
                 print(f"{Colors.GREEN}  ✓ 后端已启动 (http://localhost:8000){Colors.END}")
                 return process
         except:
-            continue
+            pass
 
-    print(f"{Colors.RED}  ✗ 后端启动超时{Colors.END}")
+        # 检查进程是否退出
+        if process.poll() is not None:
+            # 读取所有输出
+            output = process.stdout.read() if process.stdout else ""
+            print(f"{Colors.RED}  ✗ 后端启动失败{Colors.END}")
+            print(output[-500:] if output else "")
+            return None
+
+    # 启动超时，终止进程
     process.terminate()
+    print(f"{Colors.RED}  ✗ 后端启动超时{Colors.END}")
     return None
 
 
@@ -113,18 +124,21 @@ def start_frontend():
         cwd=frontend_dir,
         stdout=subprocess.PIPE,
         stderr=subprocess.STDOUT,
-        env=os.environ.copy()
+        text=True,
+        bufsize=1,
     )
 
     # 等待前端启动
-    for i in range(20):
-        time.sleep(1)
-        if process.poll() is not None:
-            print(f"{Colors.RED}  ✗ 前端启动失败{Colors.END}")
-            output = process.stdout.read().decode("utf-8", errors="ignore")
-            print(output[-500:] if output else "")
-            return None
+    for i in range(30):
+        time.sleep(0.5)
 
+        # 输出实时日志
+        if process.stdout:
+            line = process.stdout.readline()
+            if line:
+                print(f"  {line.rstrip()}")
+
+        # 检查是否启动成功
         try:
             import urllib.request
             response = urllib.request.urlopen("http://localhost:1420", timeout=1)
@@ -132,7 +146,14 @@ def start_frontend():
                 print(f"{Colors.GREEN}  ✓ 前端已启动 (http://localhost:1420){Colors.END}")
                 return process
         except:
-            continue
+            pass
+
+        # 检查进程是否退出
+        if process.poll() is not None:
+            output = process.stdout.read() if process.stdout else ""
+            print(f"{Colors.RED}  ✗ 前端启动失败{Colors.END}")
+            print(output[-500:] if output else "")
+            return None
 
     print(f"{Colors.RED}  ✗ 前端启动超时{Colors.END}")
     process.terminate()
@@ -141,7 +162,7 @@ def start_frontend():
 
 def main():
     print_banner()
-    has_api_key = check_api_key()
+    check_api_key()
 
     backend_process = start_backend()
     if not backend_process:
@@ -165,7 +186,6 @@ def main():
     print()
 
     try:
-        # 等待子进程
         while True:
             time.sleep(1)
 
@@ -181,7 +201,6 @@ def main():
         print(f"\n\n{Colors.YELLOW}正在停止服务...{Colors.END}")
 
     finally:
-        # 清理进程
         if backend_process:
             backend_process.terminate()
             backend_process.wait()

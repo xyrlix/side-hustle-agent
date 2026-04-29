@@ -3,12 +3,22 @@
 """
 
 import os
+import logging
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 
 from .api.routes import router
 from .core.config import get_settings
+
+# 配置日志
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s │ %(levelname)s │ %(message)s",
+    datefmt="%H:%M:%S",
+)
+logger = logging.getLogger("side_hustle_agent")
 
 settings = get_settings()
 
@@ -17,6 +27,14 @@ app = FastAPI(
     description="基于多智能体协同的个性化轻创业推荐系统",
     version="0.1.0",
 )
+
+# 请求日志中间件
+@app.middleware("http")
+async def log_requests(request: Request, call_next):
+    logger.info(f"{request.method} {request.url.path}")
+    response = await call_next(request)
+    logger.info(f"  → {response.status_code}")
+    return response
 
 # CORS 配置
 app.add_middleware(
@@ -51,7 +69,14 @@ def main():
     """启动服务"""
     import uvicorn
     port = int(os.getenv("PORT", "8000"))
-    uvicorn.run("side_hustle_agent.main:app", host="0.0.0.0", port=port, reload=True)
+    logger.info(f"启动副业雷达服务，端口: {port}")
+    uvicorn.run(
+        "side_hustle_agent.main:app",
+        host="0.0.0.0",
+        port=port,
+        reload=True,
+        log_level="info",
+    )
 
 
 if __name__ == "__main__":
