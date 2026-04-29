@@ -31,16 +31,16 @@ export default function UserForm({ onSubmit, disabled }: Props) {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <form onSubmit={handleSubmit} className="space-y-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* City */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">所在城市</label>
+          <label className="block text-base font-medium text-gray-700 mb-2">所在城市</label>
           <select
             value={city}
             onChange={e => setCity(e.target.value)}
             disabled={disabled}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+            className="w-full px-4 py-3 text-lg border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white"
           >
             {CITIES.map(c => <option key={c} value={c}>{c}</option>)}
           </select>
@@ -48,7 +48,7 @@ export default function UserForm({ onSubmit, disabled }: Props) {
 
         {/* Goal */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">月收入目标 (元)</label>
+          <label className="block text-base font-medium text-gray-700 mb-2">月收入目标 (元)</label>
           <input
             type="number"
             value={goal}
@@ -56,33 +56,33 @@ export default function UserForm({ onSubmit, disabled }: Props) {
             disabled={disabled}
             min="1000"
             max="100000"
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+            className="w-full px-4 py-3 text-lg border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent"
           />
         </div>
       </div>
 
       {/* Skills */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">拥有技能 (用逗号分隔)</label>
+        <label className="block text-base font-medium text-gray-700 mb-2">拥有技能 (用逗号分隔)</label>
         <input
           type="text"
           value={skills}
           onChange={e => setSkills(e.target.value)}
           disabled={disabled}
-          placeholder="如: Python, Excel, 剪辑"
-          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+          placeholder="如: Python, Excel, 剪辑, 设计"
+          className="w-full px-4 py-3 text-lg border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent"
         />
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Time */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">每天可用时间</label>
+          <label className="block text-base font-medium text-gray-700 mb-2">每天可用时间</label>
           <select
             value={time}
             onChange={e => setTime(e.target.value)}
             disabled={disabled}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+            className="w-full px-4 py-3 text-lg border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white"
           >
             {TIME_OPTIONS.map(t => <option key={t} value={t}>{t}</option>)}
           </select>
@@ -90,12 +90,12 @@ export default function UserForm({ onSubmit, disabled }: Props) {
 
         {/* Risk */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">风险偏好</label>
+          <label className="block text-base font-medium text-gray-700 mb-2">风险偏好</label>
           <select
             value={risk}
             onChange={e => setRisk(e.target.value)}
             disabled={disabled}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+            className="w-full px-4 py-3 text-lg border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white"
           >
             {RISK_OPTIONS.map(r => <option key={r} value={r}>{r}</option>)}
           </select>
@@ -110,15 +110,15 @@ export default function UserForm({ onSubmit, disabled }: Props) {
           checked={avoidAppear}
           onChange={e => setAvoidAppear(e.target.checked)}
           disabled={disabled}
-          className="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500"
+          className="w-5 h-5 text-purple-600 border-gray-300 rounded focus:ring-purple-500"
         />
-        <label htmlFor="avoidAppear" className="ml-2 text-sm text-gray-700">厌恶露脸</label>
+        <label htmlFor="avoidAppear" className="ml-3 text-base text-gray-700">厌恶露脸</label>
       </div>
 
       <button
         type="submit"
         disabled={disabled}
-        className="w-full py-3 px-4 bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-semibold rounded-lg shadow-lg hover:from-purple-700 hover:to-indigo-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+        className="w-full py-4 px-6 text-xl bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-bold rounded-xl shadow-lg hover:from-purple-700 hover:to-indigo-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-[1.02]"
       >
         {disabled ? "分析中..." : "获取推荐"}
       </button>
