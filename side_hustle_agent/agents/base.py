@@ -57,14 +57,14 @@ class BaseAgent(ABC):
         """运行 Agent"""
         pass
 
-    def think(self, prompt: str, system_prompt: str | None = None) -> str:
-        """调用 LLM 进行推理（同步）"""
+    async def think(self, prompt: str, system_prompt: str | None = None) -> str:
+        """调用 LLM 进行推理"""
         messages = []
         if system_prompt:
             messages.append({"role": "system", "content": system_prompt})
         messages.append({"role": "user", "content": prompt})
 
-        response = self.llm.chat(
+        response = await self.llm.chat(
             messages=messages,
             temperature=self.settings.temperature,
             max_tokens=2048,
@@ -72,11 +72,7 @@ class BaseAgent(ABC):
 
         return response.content
 
-    async def think_async(self, prompt: str, system_prompt: str | None = None) -> str:
-        """异步调用 LLM"""
+    def think_sync(self, prompt: str, system_prompt: str | None = None) -> str:
+        """同步调用 LLM"""
         import asyncio
-
-        def _call():
-            return self.think(prompt, system_prompt)
-
-        return await asyncio.to_thread(_call)
+        return asyncio.run(self.think(prompt, system_prompt))

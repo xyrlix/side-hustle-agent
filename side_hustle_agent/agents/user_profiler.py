@@ -68,7 +68,7 @@ class UserProfilerAgent(BaseAgent):
                 monthly_goal=user_input.monthly_goal,
             )
 
-            response = await self.think_async(prompt, USER_PROFILER_SYSTEM)
+            response = await self.think(prompt, USER_PROFILER_SYSTEM)
 
             # 解析响应，生成画像标签
             tags = self._extract_tags(user_input, city_tier)
