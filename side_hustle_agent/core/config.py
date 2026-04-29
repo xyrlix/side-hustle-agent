@@ -88,6 +88,7 @@ class Settings(BaseSettings):
                 "anthropic": "ANTHROPIC_API_KEY",
             }
             api_key = os.getenv(env_map.get(provider, "LLM_API_KEY"), "")
+            model = ""
 
         if not model:
             defaults = {
