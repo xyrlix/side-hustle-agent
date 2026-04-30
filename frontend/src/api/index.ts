@@ -550,6 +550,7 @@ export interface HotTopicsResponse {
   success: boolean;
   topics: HotTopic[];
   sources?: Record<string, boolean>;
+  message?: string;
 }
 
 export async function getHotTopics(source?: string): Promise<HotTopicsResponse> {

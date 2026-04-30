@@ -1,16 +1,16 @@
 import { useState, useEffect } from "react";
-import { getCampaignROI, getContentROI, getROIAdvice, ContentROI, CampaignROI } from "../api";
+import { getCampaignROI, getROIAdvice, CampaignROI } from "../api";
 
 interface Props {
-  token: string;
+  token?: string;
   onBack: () => void;
 }
 
-export default function ROIAnalysisPanel({ token, onBack }: Props) {
+export default function ROIAnalysisPanel({ onBack }: Props) {
   const [campaignROI, setCampaignROI] = useState<CampaignROI | null>(null);
   const [advice, setAdvice] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [targetROI, setTargetROI] = useState(50);
+  const targetROI = 50;
 
   useEffect(() => {
     loadData();
@@ -34,17 +34,6 @@ export default function ROIAnalysisPanel({ token, onBack }: Props) {
       console.error("加载失败:", e);
     } finally {
       setLoading(false);
-    }
-  };
-
-  const getRatingColor = (rating: string) => {
-    switch (rating) {
-      case "S": return "text-purple-400 bg-purple-500/20";
-      case "A": return "text-green-400 bg-green-500/20";
-      case "B": return "text-blue-400 bg-blue-500/20";
-      case "C": return "text-yellow-400 bg-yellow-500/20";
-      case "D": return "text-red-400 bg-red-500/20";
-      default: return "text-white/60 bg-white/10";
     }
   };
 

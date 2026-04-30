@@ -42,6 +42,45 @@ class SkillLevel(str, Enum):
     ADVANCED = "高级技能"
 
 
+class EmploymentStatus(str, Enum):
+    """工作状态"""
+    EMPLOYED = "在职"
+    STUDENT = "学生"
+    FREELANCER = "自由职业"
+    UNEMPLOYED = "失业"
+
+
+class WorkMode(str, Enum):
+    """工作方式偏好"""
+    ONLINE = "线上为主"
+    OFFLINE = "线下为主"
+    HYBRID = "线上线下结合"
+
+
+class StartupBudget(str, Enum):
+    """启动预算"""
+    UNDER_500 = "500元以下"
+    FIVE_HUNDRED_TO_2K = "500-2000元"
+    TWO_K_TO_5K = "2000-5000元"
+    OVER_5K = "5000元以上"
+
+
+class SideHustleExp(str, Enum):
+    """副业经验"""
+    NONE = "无经验"
+    SOME = "有一些"
+    EXPERIENCED = "经验丰富"
+
+
+class WorkExperience(str, Enum):
+    """工作经验"""
+    UNDER_1Y = "1年以下"
+    ONE_TO_3Y = "1-3年"
+    THREE_TO_5Y = "3-5年"
+    FIVE_TO_10Y = "5-10年"
+    OVER_10Y = "10年以上"
+
+
 class UserInput(BaseModel):
     """用户输入"""
     name: str | None = None
@@ -51,6 +90,13 @@ class UserInput(BaseModel):
     risk_preference: RiskPreference = Field(default=RiskPreference.MEDIUM, description="风险偏好")
     avoid_appearing: bool = Field(default=False, description="是否厌恶露脸")
     monthly_goal: int = Field(default=3000, description="月收入目标，单位：元")
+    # 新增字段
+    employment_status: EmploymentStatus = Field(default=EmploymentStatus.EMPLOYED, description="工作状态")
+    industry: str = Field(default="互联网", description="所在行业")
+    work_experience: WorkExperience = Field(default=WorkExperience.ONE_TO_3Y, description="工作经验")
+    side_hustle_exp: SideHustleExp = Field(default=SideHustleExp.NONE, description="副业经验")
+    startup_budget: StartupBudget = Field(default=StartupBudget.FIVE_HUNDRED_TO_2K, description="启动预算")
+    work_mode: WorkMode = Field(default=WorkMode.ONLINE, description="工作方式偏好")
 
 
 class UserProfile(BaseModel):
@@ -64,9 +110,22 @@ class UserProfile(BaseModel):
     monthly_goal: int
     tags: list[str] = Field(default_factory=list, description="画像标签")
 
+    # 新增字段
+    employment_status: EmploymentStatus = EmploymentStatus.EMPLOYED
+    industry: str = "互联网"
+    work_experience: WorkExperience = WorkExperience.ONE_TO_3Y
+    side_hustle_exp: SideHustleExp = SideHustleExp.NONE
+    startup_budget: StartupBudget = StartupBudget.FIVE_HUNDRED_TO_2K
+    work_mode: WorkMode = WorkMode.ONLINE
+
     # 地域特征
     hourly_rate_local: float = Field(description="本地时薪参考")
     market_density: dict[str, float] = Field(default_factory=dict, description="各类市场密度")
+    # 增强分析
+    transferable_skills: list[str] = Field(default_factory=list, description="可转化到副业的技能")
+    income_realistic_range: dict = Field(default_factory=dict, description="现实收入预期区间")
+    recommended_timeline: str = Field(default="", description="推荐启动时间线")
+    risk_factors: list[str] = Field(default_factory=list, description="主要风险因素")
 
 
 class SideHustle(BaseModel):
@@ -142,6 +201,27 @@ class MemoryEntry(BaseModel):
     timestamp: datetime = Field(default_factory=datetime.now)
 
 
+class ContentStatus(str, Enum):
+    """内容状态"""
+    DRAFT = "draft"           # 草稿
+    PENDING = "pending"       # 待发布
+    PUBLISHED = "published"   # 已发布
+    FAILED = "failed"         # 发布失败
+
+
+class PlatformType(str, Enum):
+    """平台类型"""
+    WECHAT_PUBLIC = "wechat_public"     # 公众号
+    TOUTIAO = "toutiao"                 # 头条号
+    XIAOHONGSHU = "xiaohongshu"         # 小红书
+    ZHIHU = "zhihu"                     # 知乎
+    BAIJIAHAO = "baijiahao"            # 百家号
+    BILIBILI = "bilibili"              # B站
+    DOUYIN = "douyin"                  # 抖音
+    KUAISHOU = "kuaishou"              # 快手
+    VIDEO_ACCOUNT = "video_account"   # 视频号
+
+
 class ConversationContext(BaseModel):
     """对话上下文"""
     user_id: str | None = None
@@ -154,3 +234,145 @@ class ConversationContext(BaseModel):
     action_plan: ActionPlan | None = None
     validation_result: ValidationResult | None = None
     error_message: str | None = None
+
+
+# ============================================
+# 内容创作模块数据模型
+# ============================================
+
+class PlatformInfo(BaseModel):
+    """平台信息"""
+    id: str
+    name: str
+    type: PlatformType
+    icon: str = ""
+    description: str = ""
+    content_format: list[str] = Field(default_factory=list, description="支持的内容格式，如 ['text', 'image']")
+    max_content_length: int = Field(default=20000, description="最大内容长度")
+    features: list[str] = Field(default_factory=list, description="平台特性")
+
+
+class PlatformAccount(BaseModel):
+    """平台账号"""
+    id: int = 0
+    user_id: int
+    platform: PlatformType
+    account_name: str = ""
+    account_id: str = ""          # 平台上的账号ID
+    access_token: str = ""        # 加密存储
+    refresh_token: str = ""
+    status: str = "active"        # active/suspended/inactive
+    followers: int = 0            # 粉丝数
+    created_at: datetime = Field(default_factory=datetime.now)
+    updated_at: datetime = Field(default_factory=datetime.now)
+
+
+class Content(BaseModel):
+    """内容条目"""
+    id: int = 0
+    user_id: int
+    title: str = ""
+    body: str = ""                # 主内容（原始版本）
+    summary: str = ""             # 摘要
+    cover_image: str = ""         # 封面图路径
+
+    # 平台适配版本
+    platform_versions: dict[str, str] = Field(default_factory=dict, description="各平台适配内容")
+
+    # 素材关联
+    material_ids: list[int] = Field(default_factory=list, description="关联的素材ID列表")
+
+    # 状态和分类
+    status: ContentStatus = ContentStatus.DRAFT
+    tags: list[str] = Field(default_factory=list, description="内容标签")
+    category: str = ""            # 内容分类
+
+    # 发布信息
+    scheduled_at: datetime | None = None
+    published_at: datetime | None = None
+    published_platforms: list[str] = Field(default_factory=list, description="已发布的平台列表")
+
+    # AI生成相关
+    ai_generated: bool = False
+    ai_prompt: str = ""           # 使用的AI提示词
+
+    # 统计
+    views: int = 0
+    likes: int = 0
+    comments: int = 0
+    shares: int = 0
+    revenue: float = 0            # 收益金额
+
+    # 版本控制
+    version: int = 1
+    created_at: datetime = Field(default_factory=datetime.now)
+    updated_at: datetime = Field(default_factory=datetime.now)
+
+
+class ContentVersion(BaseModel):
+    """内容版本历史"""
+    id: int = 0
+    content_id: int
+    version: int
+    title: str
+    body: str
+    change_summary: str = ""      # 变更摘要
+    created_at: datetime = Field(default_factory=datetime.now)
+
+
+class Campaign(BaseModel):
+    """运营活动"""
+    id: int = 0
+    user_id: int
+    name: str = ""
+    description: str = ""
+    content_ids: list[int] = Field(default_factory=list, description="关联的内容ID列表")
+
+    # 活动计划
+    start_date: datetime | None = None
+    end_date: datetime | None = None
+
+    # 目标
+    target_views: int = 0
+    target_revenue: float = 0
+
+    # 实际统计
+    actual_views: int = 0
+    actual_revenue: float = 0
+
+    status: str = "active"       # active/completed/cancelled
+    created_at: datetime = Field(default_factory=datetime.now)
+
+
+class Material(BaseModel):
+    """素材（图片、视频、音频）"""
+    id: int = 0
+    user_id: int
+    filename: str = ""
+    file_path: str = ""
+    file_type: str = ""          # image/video/audio/document
+    file_size: int = 0           # 字节
+    mime_type: str = ""
+
+    # 元数据
+    width: int = 0               # 图片/视频宽度
+    height: int = 0             # 图片/视频高度
+    duration: int = 0           # 音视频时长（秒）
+
+    # 标签和分组
+    tags: list[str] = Field(default_factory=list)
+    folder: str = ""             # 素材夹
+
+    created_at: datetime = Field(default_factory=datetime.now)
+
+
+class PublishLog(BaseModel):
+    """发布日志"""
+    id: int = 0
+    content_id: int
+    platform: PlatformType
+    status: str = "pending"      # pending/success/failed
+    error_message: str = ""
+    published_url: str = ""      # 发布的URL
+    published_at: datetime | None = None
+    created_at: datetime = Field(default_factory=datetime.now)

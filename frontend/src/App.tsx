@@ -36,32 +36,36 @@ function Dashboard({ onNavigate }: { onNavigate: (page: Page) => void }) {
   };
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-5">
       {/* 欢迎区块 */}
-      <div className="relative rounded-3xl overflow-hidden">
+      <div className="relative rounded-2xl overflow-hidden">
         <HeroBackground />
-        <div className="relative z-10 p-10 bg-gradient-to-r from-purple-900/60 to-indigo-900/60 backdrop-blur-sm border border-white/10 rounded-3xl">
-          <h2 className="text-4xl font-bold text-white mb-3">欢迎使用副业雷达</h2>
-          <p className="text-white/60 text-lg">基于 AI 智能分析，为你匹配最适合的副业方向</p>
-          <div className="flex gap-4 mt-8">
-            <button
-              onClick={() => onNavigate("hustle")}
-              className="px-8 py-4 bg-purple-600 hover:bg-purple-700 text-white rounded-xl font-medium text-lg flex items-center gap-3 transition-all shadow-lg shadow-purple-500/30"
-            >
-              <span className="text-2xl">🎯</span> 开始副业推荐
-            </button>
-            <button
-              onClick={() => onNavigate("content")}
-              className="px-8 py-4 bg-white/10 hover:bg-white/20 text-white rounded-xl font-medium text-lg flex items-center gap-3 transition-all border border-white/20"
-            >
-              <span className="text-2xl">📝</span> 内容管理
-            </button>
+        <div className="relative z-10 p-6 bg-gradient-to-r from-purple-900/60 to-indigo-900/60 backdrop-blur-sm border border-white/10 rounded-2xl">
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="text-2xl font-bold text-white">欢迎使用副业雷达</h2>
+              <p className="text-white/50 text-sm mt-1">基于 AI 智能分析，为你匹配最适合的副业方向</p>
+            </div>
+            <div className="flex gap-3">
+              <button
+                onClick={() => onNavigate("hustle")}
+                className="px-5 py-2.5 bg-purple-600 hover:bg-purple-700 text-white rounded-lg font-medium flex items-center gap-2 transition-all"
+              >
+                <span>🎯</span> 副业推荐
+              </button>
+              <button
+                onClick={() => onNavigate("content")}
+                className="px-5 py-2.5 bg-white/10 hover:bg-white/20 text-white rounded-lg font-medium flex items-center gap-2 transition-all border border-white/20"
+              >
+                <span>📝</span> 内容管理
+              </button>
+            </div>
           </div>
         </div>
       </div>
 
       {/* 统计卡片 */}
-      <div className="grid grid-cols-4 gap-6">
+      <div className="grid grid-cols-4 gap-4">
         <StatCard
           icon="📊"
           label="内容总数"
@@ -89,25 +93,25 @@ function Dashboard({ onNavigate }: { onNavigate: (page: Page) => void }) {
       </div>
 
       {/* 快捷操作 */}
-      <div className="grid grid-cols-4 gap-6">
+      <div className="grid grid-cols-4 gap-4">
         <QuickAction
           icon="🤖"
           title="AI 内容生成"
-          desc="使用 AI 快速生成各平台适配内容"
+          desc="快速生成各平台适配内容"
           onClick={() => onNavigate("content")}
           color="cyan"
         />
         <QuickAction
           icon="📰"
           title="副业推荐分析"
-          desc="智能匹配最适合你的副业方向"
+          desc="智能匹配最适合你的副业"
           onClick={() => onNavigate("hustle")}
           color="purple"
         />
         <QuickAction
           icon="📈"
           title="数据看板"
-          desc="查看内容运营数据和收益分析"
+          desc="查看运营数据和收益分析"
           onClick={() => onNavigate("analytics")}
           color="green"
         />
@@ -133,12 +137,12 @@ function StatCard({ icon, label, value, color }: { icon: string; label: string; 
   const c = colors[color] || colors.purple;
 
   return (
-    <div className={`p-6 rounded-2xl ${c.bg} border ${c.border}`}>
-      <div className="flex items-center gap-4">
-        <span className="text-3xl">{icon}</span>
+    <div className={`p-4 rounded-xl ${c.bg} border ${c.border}`}>
+      <div className="flex items-center gap-3">
+        <span className="text-2xl">{icon}</span>
         <div>
-          <div className={`text-3xl font-bold ${c.text}`}>{value}</div>
-          <div className="text-white/40 text-sm">{label}</div>
+          <div className={`text-2xl font-bold ${c.text}`}>{value}</div>
+          <div className="text-white/40 text-xs">{label}</div>
         </div>
       </div>
     </div>
@@ -150,17 +154,18 @@ function QuickAction({ icon, title, desc, onClick, color }: { icon: string; titl
     cyan: { bg: "bg-cyan-500/10", hover: "hover:bg-cyan-500/20", border: "border-cyan-500/30" },
     purple: { bg: "bg-purple-500/10", hover: "hover:bg-purple-500/20", border: "border-purple-500/30" },
     green: { bg: "bg-green-500/10", hover: "hover:bg-green-500/20", border: "border-green-500/30" },
+    orange: { bg: "bg-orange-500/10", hover: "hover:bg-orange-500/20", border: "border-orange-500/30" },
   };
   const c = colors[color] || colors.purple;
 
   return (
     <button
       onClick={onClick}
-      className={`p-8 rounded-2xl ${c.bg} ${c.hover} border ${c.border} text-left transition-all group`}
+      className={`p-5 rounded-xl ${c.bg} ${c.hover} border ${c.border} text-left transition-all group`}
     >
-      <div className="text-4xl mb-4">{icon}</div>
-      <div className="text-white font-bold text-xl mb-2 group-hover:text-purple-300 transition-colors">{title}</div>
-      <div className="text-white/50">{desc}</div>
+      <div className="text-2xl mb-2">{icon}</div>
+      <div className="text-white font-bold text-sm mb-1 group-hover:text-purple-300 transition-colors">{title}</div>
+      <div className="text-white/40 text-xs">{desc}</div>
     </button>
   );
 }
@@ -192,23 +197,23 @@ function HustlePage() {
   };
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-5">
       {/* Hero Form */}
-      <div className="relative rounded-3xl overflow-hidden">
+      <div className="relative rounded-2xl overflow-hidden">
         <HeroBackground />
         <div
-          className="relative z-10 p-10"
+          className="relative z-10 p-6"
           style={{
             background: "linear-gradient(135deg, rgba(15,15,40,0.75) 0%, rgba(30,27,75,0.6) 50%, rgba(15,15,40,0.8) 100%)",
           }}
         >
-          <div className="flex items-center gap-4 mb-6">
-            <div className="w-12 h-12 rounded-2xl bg-purple-600/40 border border-purple-400/30 flex items-center justify-center backdrop-blur-sm">
-              <span className="text-2xl">📡</span>
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-10 h-10 rounded-xl bg-purple-600/40 border border-purple-400/30 flex items-center justify-center backdrop-blur-sm">
+              <span className="text-xl">📡</span>
             </div>
             <div>
-              <h2 className="text-3xl font-bold text-white">开始智能匹配</h2>
-              <p className="text-white/50 text-base mt-0.5">填写信息，多智能体协同分析您的最佳副业方向</p>
+              <h2 className="text-xl font-bold text-white">开始智能匹配</h2>
+              <p className="text-white/50 text-sm">填写信息，多智能体协同分析您的最佳副业方向</p>
             </div>
           </div>
           <UserForm onSubmit={handleSubmit} disabled={loading} />
@@ -217,33 +222,33 @@ function HustlePage() {
 
       {/* Loading */}
       {loading && (
-        <div className="relative rounded-3xl overflow-hidden">
+        <div className="relative rounded-2xl overflow-hidden">
           <HeroBackground />
-          <div className="relative z-10 bg-white/[0.05] backdrop-blur-xl border border-white/10 rounded-3xl p-20 text-center">
+          <div className="relative z-10 bg-white/[0.05] backdrop-blur-xl border border-white/10 rounded-2xl p-12 text-center">
             <LoadingSpinner />
-            <p className="text-white mt-12 text-2xl font-medium tracking-wide">深度分析中...</p>
-            <p className="text-white/40 mt-3 text-base">多智能体协同推理 · 请稍候</p>
+            <p className="text-white mt-6 text-lg font-medium">深度分析中...</p>
+            <p className="text-white/40 mt-2 text-sm">多智能体协同推理 · 请稍候</p>
           </div>
         </div>
       )}
 
       {/* Error */}
       {error && (
-        <div className="bg-red-500/10 border-2 border-red-500/30 rounded-3xl p-10 text-red-400 text-xl text-center font-medium">
+        <div className="bg-red-500/10 border border-red-500/30 rounded-xl p-6 text-red-400 text-center font-medium">
           {error}
         </div>
       )}
 
       {/* Results */}
       {result?.success && result.data && (
-        <div className="space-y-6">
-          <div className="flex items-center gap-4">
-            <div className="w-14 h-14 rounded-2xl bg-green-500/20 border border-green-500/30 flex items-center justify-center">
-              <span className="text-3xl">🎯</span>
+        <div className="space-y-4">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-green-500/20 border border-green-500/30 flex items-center justify-center">
+              <span className="text-xl">🎯</span>
             </div>
             <div>
-              <h2 className="text-4xl font-bold text-white">为您推荐</h2>
-              <p className="text-white/40 mt-1 text-sm">基于深度画像分析生成</p>
+              <h2 className="text-xl font-bold text-white">为您推荐</h2>
+              <p className="text-white/40 text-xs">基于深度画像分析生成</p>
             </div>
           </div>
           <ResultCard data={result.data} />
@@ -251,7 +256,7 @@ function HustlePage() {
       )}
 
       {result && !result.success && (
-        <div className="bg-yellow-500/10 border-2 border-yellow-500/30 rounded-3xl p-10 text-yellow-400 text-xl text-center font-medium">
+        <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-xl p-6 text-yellow-400 text-center font-medium">
           {result.message}
         </div>
       )}
@@ -301,10 +306,15 @@ export default function App() {
     }
   };
 
-  const navItems: { id: Page; label: string; icon: string }[] = [
-    { id: "dashboard", label: "仪表板", icon: "📊" },
+  // 主导航
+  const mainNavItems: { id: Page; label: string; icon: string }[] = [
+    { id: "dashboard", label: "首页", icon: "📊" },
     { id: "hustle", label: "副业推荐", icon: "🎯" },
     { id: "content", label: "内容管理", icon: "📝" },
+  ];
+
+  // 运营工具
+  const toolsNavItems: { id: Page; label: string; icon: string }[] = [
     { id: "analytics", label: "数据分析", icon: "📈" },
     { id: "platforms", label: "平台管理", icon: "🔗" },
     { id: "materials", label: "素材库", icon: "📦" },
@@ -313,6 +323,8 @@ export default function App() {
     { id: "check", label: "内容检测", icon: "🔍" },
     { id: "roi", label: "ROI分析", icon: "💹" },
   ];
+
+  const [showTools, setShowTools] = useState(false);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-950 to-indigo-950">
@@ -328,26 +340,25 @@ export default function App() {
 
       {/* Header */}
       <header className="relative z-50 bg-white/[0.04] backdrop-blur-xl border-b border-white/[0.08] sticky top-0">
-        <div className="max-w-7xl mx-auto px-8 py-4">
+        <div className="max-w-7xl mx-auto px-6 py-3">
           <div className="flex items-center justify-between">
             {/* Logo */}
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-purple-600/40 border border-purple-400/30 flex items-center justify-center">
-                <span className="text-xl">📡</span>
+              <div className="w-9 h-9 rounded-lg bg-purple-600/40 border border-purple-400/30 flex items-center justify-center">
+                <span className="text-lg">📡</span>
               </div>
               <div>
-                <h1 className="text-2xl font-bold text-white">副业雷达</h1>
-                <p className="text-white/30 text-xs">多平台社交媒体管理</p>
+                <h1 className="text-xl font-bold text-white">副业雷达</h1>
               </div>
             </div>
 
             {/* Navigation */}
-            <nav className="flex items-center gap-2">
-              {navItems.map((item) => (
+            <nav className="flex items-center gap-1">
+              {mainNavItems.map((item) => (
                 <button
                   key={item.id}
                   onClick={() => setPage(item.id)}
-                  className={`px-5 py-2.5 rounded-xl text-sm font-medium flex items-center gap-2 transition-all ${
+                  className={`px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2 transition-all ${
                     page === item.id
                       ? "bg-purple-600/40 text-purple-200 border border-purple-400/40"
                       : "text-white/50 hover:text-white hover:bg-white/5"
@@ -357,32 +368,69 @@ export default function App() {
                   <span>{item.label}</span>
                 </button>
               ))}
+
+              {/* 运营工具下拉 */}
+              <div className="relative">
+                <button
+                  onClick={() => setShowTools(!showTools)}
+                  className={`px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2 transition-all ${
+                    toolsNavItems.some(item => page === item.id)
+                      ? "bg-purple-600/40 text-purple-200 border border-purple-400/40"
+                      : "text-white/50 hover:text-white hover:bg-white/5"
+                  }`}
+                >
+                  <span>🛠️</span>
+                  <span>运营工具</span>
+                  <span className={`text-xs transition-transform ${showTools ? 'rotate-180' : ''}`}>▼</span>
+                </button>
+
+                {/* 下拉菜单 */}
+                {showTools && (
+                  <div className="absolute top-full left-0 mt-2 w-48 bg-gray-900/95 backdrop-blur-xl border border-white/10 rounded-xl shadow-2xl py-2 z-50">
+                    {toolsNavItems.map((item) => (
+                      <button
+                        key={item.id}
+                        onClick={() => {
+                          setPage(item.id);
+                          setShowTools(false);
+                        }}
+                        className={`w-full px-4 py-2.5 text-left text-sm flex items-center gap-3 transition-all ${
+                          page === item.id
+                            ? "bg-purple-600/30 text-purple-200"
+                            : "text-white/60 hover:text-white hover:bg-white/5"
+                        }`}
+                      >
+                        <span>{item.icon}</span>
+                        <span>{item.label}</span>
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
             </nav>
 
             {/* User Actions */}
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2">
               {currentUser ? (
                 <>
-                  <div className="text-white/60 text-sm">
-                    <span className="text-purple-400 font-medium">{currentUser.username}</span>
-                  </div>
+                  <span className="text-white/40 text-sm">{currentUser.username}</span>
                   {currentUser.role === "admin" && (
                     <button
                       onClick={() => setShowAdmin(true)}
-                      className="px-4 py-2 bg-purple-600/30 hover:bg-purple-600/50 text-purple-300 rounded-xl text-sm border border-purple-500/30"
+                      className="px-3 py-1.5 bg-purple-600/30 hover:bg-purple-600/50 text-purple-300 rounded-lg text-xs border border-purple-500/30"
                     >
                       管理
                     </button>
                   )}
                   <button
                     onClick={() => setShowConfig(true)}
-                    className="px-4 py-2 bg-white/8 hover:bg-white/12 text-white/70 rounded-xl text-sm border border-white/10"
+                    className="px-3 py-1.5 bg-white/5 hover:bg-white/10 text-white/60 rounded-lg text-xs border border-white/10"
                   >
-                    设置
+                    ⚙️
                   </button>
                   <button
                     onClick={handleLogout}
-                    className="px-4 py-2 bg-white/8 hover:bg-white/12 text-white/70 rounded-xl text-sm border border-white/10"
+                    className="px-3 py-1.5 bg-white/5 hover:bg-white/10 text-white/60 rounded-lg text-xs border border-white/10"
                   >
                     退出
                   </button>
@@ -390,7 +438,7 @@ export default function App() {
               ) : (
                 <button
                   onClick={() => setShowLogin(true)}
-                  className="px-5 py-2.5 bg-purple-600 hover:bg-purple-700 text-white rounded-xl text-sm font-medium flex items-center gap-2"
+                  className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg text-sm font-medium flex items-center gap-2"
                 >
                   <span>🔐</span>
                   <span>登录</span>
@@ -402,7 +450,7 @@ export default function App() {
       </header>
 
       {/* Main Content */}
-      <main className="relative z-10 max-w-7xl mx-auto px-8 py-10">
+      <main className="relative z-10 max-w-7xl mx-auto px-6 py-6">
         {page === "dashboard" && <Dashboard onNavigate={setPage} />}
         {page === "hustle" && <HustlePage />}
         {page === "content" && (

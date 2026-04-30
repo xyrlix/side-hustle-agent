@@ -2,13 +2,13 @@ import { useState } from "react";
 import { checkContent, ContentViolation } from "../api";
 
 interface Props {
-  token: string;
+  token?: string;
   onBack: () => void;
   initialTitle?: string;
   initialBody?: string;
 }
 
-export default function ContentCheckPanel({ token, onBack, initialTitle = "", initialBody = "" }: Props) {
+export default function ContentCheckPanel({ onBack, initialTitle = "", initialBody = "" }: Props) {
   const [title, setTitle] = useState(initialTitle);
   const [body, setBody] = useState(initialBody);
   const [result, setResult] = useState<any>(null);

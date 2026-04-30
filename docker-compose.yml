@@ -1,0 +1,39 @@
+# ============ Docker Compose 配置 ============
+# 用法: docker-compose up -d
+
+version: "3.8"
+
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+    container_name: side_hustle_backend
+    ports:
+      - "8000:8000"
+    environment:
+      - PORT=8000
+      - LLM_PROVIDER=${LLM_PROVIDER:-deepseek}
+      - LLM_API_KEY=${LLM_API_KEY:-}
+      - JWT_SECRET=${JWT_SECRET:-change_me_in_production}
+      - ALLOWED_ORIGINS=${ALLOWED_ORIGINS:-http://localhost:1420}
+      - TRUSTED_HOSTS=${TRUSTED_HOSTS:-*}
+    volumes:
+      - ./data:/app/data  # 持久化SQLite数据库
+    restart: unless-stopped
+
+  frontend:
+    image: node:18-alpine
+    container_name: side_hustle_frontend
+    working_dir: /app
+    ports:
+      - "1420:1420"
+    environment:
+      - NODE_ENV=production
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules  # 保持容器内的node_modules
+    command: sh -c "npm install && npm run build && npx serve -s dist -l 1420"
+    depends_on:
+      - backend
+    restart: unless-stopped

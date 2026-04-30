@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { getHotTopics, getHotTopicsSources, HotTopic } from "../api";
 
 interface Props {
-  token: string;
+  token?: string;
   onBack: () => void;
   onSelectTopic?: (topic: string) => void;
 }
@@ -13,7 +13,7 @@ interface Source {
   icon: string;
 }
 
-export default function HotTopicsPanel({ token, onBack, onSelectTopic }: Props) {
+export default function HotTopicsPanel({ onBack, onSelectTopic }: Props) {
   const [topics, setTopics] = useState<HotTopic[]>([]);
   const [sources, setSources] = useState<Source[]>([]);
   const [selectedSource, setSelectedSource] = useState<string | null>(null);

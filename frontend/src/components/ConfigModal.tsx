@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { AppConfig, getModels } from "../api";
+import { AppConfig } from "../api";
 
 interface Props {
   config: AppConfig | null;

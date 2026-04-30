@@ -8,11 +8,16 @@ from ..core.memory import SharedMemory
 from ..core.models import (
     AgentState,
     CityTier,
+    EmploymentStatus,
     RiskPreference,
     SideHustle,
+    SideHustleExp,
+    StartupBudget,
     TimeAvailability,
     UserInput,
     UserProfile,
+    WorkExperience,
+    WorkMode,
 )
 from .base import BaseAgent
 from ..knowledge import get_city_data, get_city_tier, get_hourly_rate, get_market_density
@@ -66,12 +71,33 @@ class UserProfilerAgent(BaseAgent):
                 risk_preference=user_input.risk_preference.value,
                 avoid_appearing="是" if user_input.avoid_appearing else "否",
                 monthly_goal=user_input.monthly_goal,
+                employment_status=user_input.employment_status.value,
+                industry=user_input.industry,
+                work_experience=user_input.work_experience.value,
+                side_hustle_exp=user_input.side_hustle_exp.value,
+                startup_budget=user_input.startup_budget.value,
+                work_mode=user_input.work_mode.value,
             )
 
             response = await self.think(prompt, USER_PROFILER_SYSTEM)
 
+            # 尝试解析 LLM 响应中的增强字段
+            llm_extra = {}
+            try:
+                if "```json" in response:
+                    json_str = response.split("```json")[1].split("```")[0].strip()
+                elif "```" in response:
+                    json_str = response.split("```")[1].split("```")[0].strip()
+                else:
+                    json_str = response.strip()
+                llm_extra = json.loads(json_str)
+            except Exception:
+                pass
+
             # 解析响应，生成画像标签
             tags = self._extract_tags(user_input, city_tier)
+            if llm_extra.get("tags"):
+                tags = list(set(tags + llm_extra["tags"]))
 
             profile = UserProfile(
                 city=user_input.city,
@@ -81,9 +107,19 @@ class UserProfilerAgent(BaseAgent):
                 risk_preference=user_input.risk_preference,
                 avoid_appearing=user_input.avoid_appearing,
                 monthly_goal=user_input.monthly_goal,
+                employment_status=user_input.employment_status,
+                industry=user_input.industry,
+                work_experience=user_input.work_experience,
+                side_hustle_exp=user_input.side_hustle_exp,
+                startup_budget=user_input.startup_budget,
+                work_mode=user_input.work_mode,
                 tags=tags,
                 hourly_rate_local=hourly_rate,
                 market_density=market_density,
+                transferable_skills=llm_extra.get("transferable_skills", []),
+                income_realistic_range=llm_extra.get("income_realistic_range", {}),
+                recommended_timeline=llm_extra.get("recommended_timeline", ""),
+                risk_factors=llm_extra.get("risk_factors", []),
             )
 
             # 存入记忆
@@ -149,24 +185,31 @@ class UserProfilerAgent(BaseAgent):
         tags = []
 
         # 城市标签
-        if city_tier == CityTier.FIRST:
-            tags.append("一线城市")
-        elif city_tier == CityTier.SECOND:
-            tags.append("二线城市")
-        elif city_tier == CityTier.THIRD:
-            tags.append("三线城市")
-        else:
-            tags.append("四线及以下")
+        tier_labels = {
+            CityTier.FIRST: "一线城市",
+            CityTier.SECOND: "二线城市",
+            CityTier.THIRD: "三线城市",
+            CityTier.FOURTH: "四线及以下",
+        }
+        tags.append(tier_labels.get(city_tier, "城市"))
+
+        # 身份状态标签
+        status_labels = {
+            EmploymentStatus.EMPLOYED: "在职员工",
+            EmploymentStatus.STUDENT: "在校学生",
+            EmploymentStatus.FREELANCER: "自由职业",
+            EmploymentStatus.UNEMPLOYED: "待业中",
+        }
+        tags.append(status_labels.get(user_input.employment_status, ""))
 
         # 时间标签
-        if user_input.available_time == TimeAvailability.LESS_1H:
-            tags.append("时间紧张")
-        elif user_input.available_time == TimeAvailability.ONE_TO_2H:
-            tags.append("碎片时间")
-        elif user_input.available_time == TimeAvailability.TWO_TO_4H:
-            tags.append("时间充裕")
-        else:
-            tags.append("时间自由")
+        time_labels = {
+            TimeAvailability.LESS_1H: "时间紧张",
+            TimeAvailability.ONE_TO_2H: "碎片时间",
+            TimeAvailability.TWO_TO_4H: "时间充裕",
+            TimeAvailability.MORE_4H: "时间自由",
+        }
+        tags.append(time_labels.get(user_input.available_time, ""))
 
         # 技能标签
         if user_input.skills:
@@ -177,14 +220,42 @@ class UserProfilerAgent(BaseAgent):
         # 露脸偏好
         if user_input.avoid_appearing:
             tags.append("厌恶露脸")
+        else:
+            tags.append("可接受露脸")
 
         # 风险偏好
-        if user_input.risk_preference == RiskPreference.LOW:
-            tags.append("保守型")
-        elif user_input.risk_preference == RiskPreference.HIGH:
-            tags.append("进取型")
-        else:
-            tags.append("稳健型")
+        risk_labels = {
+            RiskPreference.LOW: "保守型",
+            RiskPreference.HIGH: "进取型",
+        }
+        risk_label = risk_labels.get(user_input.risk_preference)
+        if risk_label:
+            tags.append(risk_label)
+
+        # 副业经验标签
+        exp_labels = {
+            SideHustleExp.NONE: "副业新手",
+            SideHustleExp.SOME: "有副业经验",
+            SideHustleExp.EXPERIENCED: "副业老手",
+        }
+        tags.append(exp_labels.get(user_input.side_hustle_exp, ""))
+
+        # 工作方式标签
+        mode_labels = {
+            WorkMode.ONLINE: "偏好线上",
+            WorkMode.OFFLINE: "偏好线下",
+            WorkMode.HYBRID: "线上线下结合",
+        }
+        tags.append(mode_labels.get(user_input.work_mode, ""))
+
+        # 预算标签
+        budget_labels = {
+            StartupBudget.UNDER_500: "低预算",
+            StartupBudget.FIVE_HUNDRED_TO_2K: "中等预算",
+            StartupBudget.TWO_K_TO_5K: "中高预算",
+            StartupBudget.OVER_5K: "高预算",
+        }
+        tags.append(budget_labels.get(user_input.startup_budget, ""))
 
         # 目标标签
         if user_input.monthly_goal >= 8000:
@@ -193,5 +264,9 @@ class UserProfilerAgent(BaseAgent):
             tags.append("中目标")
         elif user_input.monthly_goal <= 2000:
             tags.append("低目标")
+
+        # 行业标签
+        if user_input.industry:
+            tags.append(f"{user_input.industry}从业者")
 
         return tags

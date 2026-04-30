@@ -19,8 +19,6 @@ export default function PlatformManager({ token, onBack }: Props) {
   const [accounts, setAccounts] = useState<PlatformAccount[]>([]);
   const [loading, setLoading] = useState(true);
   const [showAddModal, setShowAddModal] = useState(false);
-  const [oauthUrl, setOauthUrl] = useState("");
-  const [oauthPlatform, setOauthPlatform] = useState("");
   const [platformForm, setPlatformForm] = useState({
     platform: "wechat_public",
     account_name: "",
