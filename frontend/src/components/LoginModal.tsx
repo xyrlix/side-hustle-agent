@@ -40,63 +40,65 @@ export default function LoginModal({ onClose, onLogin }: Props) {
   };
 
   return (
-    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className="bg-[#1a1a3e]/95 backdrop-blur-xl border border-white/10 rounded-3xl w-full max-w-md shadow-2xl overflow-hidden">
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-3xl shadow-2xl w-full max-w-md border border-gray-100 overflow-hidden">
         {/* Header */}
-        <div className="px-8 py-6 border-b border-white/10 flex items-center justify-between">
-          <h2 className="text-2xl font-bold text-white flex items-center gap-3">
-            <span className="text-3xl">{isLogin ? "🔐" : "📝"}</span>
-            {isLogin ? "登录" : "注册"}
-          </h2>
-          <button
-            onClick={onClose}
-            className="text-white/40 hover:text-white text-3xl leading-none transition-colors"
-          >
-            ×
-          </button>
+        <div className="bg-gradient-to-r from-violet-600 to-purple-600 px-8 py-6">
+          <div className="flex items-center justify-between">
+            <h2 className="text-2xl font-bold text-white flex items-center gap-3">
+              <span className="text-3xl">{isLogin ? "🔐" : "📝"}</span>
+              {isLogin ? "登录" : "注册"}
+            </h2>
+            <button
+              onClick={onClose}
+              className="text-white/60 hover:text-white text-3xl leading-none transition-colors"
+            >
+              ×
+            </button>
+          </div>
         </div>
 
         {/* Form */}
         <form onSubmit={handleSubmit} className="p-8 space-y-6">
           {error && (
-            <div className="bg-red-500/20 border border-red-500/30 rounded-xl px-4 py-3 text-red-400 text-center">
+            <div className="bg-red-50 border border-red-200 rounded-xl px-4 py-3 text-red-600 text-center">
               {error}
             </div>
           )}
 
           <div>
-            <label className="block text-white/70 text-sm font-medium mb-2">用户名</label>
+            <label className="block text-gray-700 text-sm font-medium mb-2">用户名</label>
             <input
               type="text"
               value={username}
               onChange={e => setUsername(e.target.value)}
               placeholder="请输入用户名"
-              className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-white/30 focus:border-purple-500 focus:outline-none transition-colors"
+              className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-gray-900 placeholder-gray-400 focus:border-violet-500 focus:outline-none transition-colors"
               required
             />
           </div>
 
           <div>
-            <label className="block text-white/70 text-sm font-medium mb-2">密码</label>
+            <label className="block text-gray-700 text-sm font-medium mb-2">密码</label>
             <input
               type="password"
               value={password}
               onChange={e => setPassword(e.target.value)}
               placeholder="请输入密码"
-              className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-white/30 focus:border-purple-500 focus:outline-none transition-colors"
+              className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-gray-900 placeholder-gray-400 focus:border-violet-500 focus:outline-none transition-colors"
               required
             />
           </div>
 
           {!isLogin && (
             <div>
-              <label className="block text-white/70 text-sm font-medium mb-2">邮箱（可选）</label>
+              <label className="block text-gray-700 text-sm font-medium mb-2">邮箱（可选）</label>
               <input
                 type="email"
                 value={email}
                 onChange={e => setEmail(e.target.value)}
                 placeholder="请输入邮箱"
-                className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-white/30 focus:border-purple-500 focus:outline-none transition-colors"
+                className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-gray-900 placeholder-gray-400 focus:border-violet-500 focus:outline-none transition-colors"
               />
             </div>
           )}
@@ -104,7 +106,7 @@ export default function LoginModal({ onClose, onLogin }: Props) {
           <button
             type="submit"
             disabled={loading || !username || !password}
-            className="w-full py-4 bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-bold rounded-xl hover:from-purple-700 hover:to-indigo-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-purple-500/30"
+            className="w-full py-4 bg-gradient-to-r from-violet-600 to-purple-600 text-white font-bold rounded-xl hover:from-violet-700 hover:to-purple-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-purple-500/30"
           >
             {loading ? "处理中..." : isLogin ? "登录" : "注册"}
           </button>
@@ -116,14 +118,14 @@ export default function LoginModal({ onClose, onLogin }: Props) {
                 setIsLogin(!isLogin);
                 setError("");
               }}
-              className="text-purple-400 hover:text-purple-300 text-sm transition-colors"
+              className="text-violet-600 hover:text-violet-700 text-sm font-medium transition-colors"
             >
               {isLogin ? "没有账号？立即注册" : "已有账号？立即登录"}
             </button>
           </div>
 
           {isLogin && (
-            <div className="text-center text-white/40 text-xs mt-4">
+            <div className="text-center text-gray-400 text-sm mt-4">
               默认管理员：admin / admin123
             </div>
           )}

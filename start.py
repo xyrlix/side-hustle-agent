@@ -37,10 +37,32 @@ def find_free_port(start_port: int = 8000) -> int:
     return port
 
 
+def find_and_kill_node_process_on_port(port: int) -> bool:
+    """查找并关闭占用指定端口的 Node 进程"""
+    try:
+        result = subprocess.run(
+            ["powershell", "-Command", f"Get-NetTCPConnection -LocalPort {port} | Select-Object -ExpandProperty OwningProcess"],
+            capture_output=True,
+            text=True,
+            timeout=5,
+        )
+        pids = result.stdout.strip().split('\n')
+        for pid in pids:
+            if pid.strip():
+                try:
+                    subprocess.run(["taskkill", "/F", "/PID", pid.strip()], capture_output=True, timeout=5)
+                    print(f"  [*] 已关闭 PID {pid.strip()}")
+                except:
+                    pass
+        return True
+    except:
+        return False
+
+
 def check_existing_services():
     """检查已有服务是否运行"""
     backend_running = is_port_in_use(8000)
-    frontend_running = is_port_in_use(1420)
+    frontend_running = is_port_in_use(3000)
     return backend_running, frontend_running
 
 
@@ -212,7 +234,7 @@ def start_backend(port: int = 8000) -> subprocess.Popen | None:
         return None
 
 
-def start_frontend(port: int = 1420) -> subprocess.Popen | None:
+def start_frontend(port: int = 3000) -> subprocess.Popen | None:
     """启动前端服务"""
     global frontend_process
 
@@ -221,9 +243,13 @@ def start_frontend(port: int = 1420) -> subprocess.Popen | None:
     frontend_dir = Path(__file__).parent / "frontend"
 
     if is_port_in_use(port):
-        print(f"  [WARN] 端口 {port} 已被占用，前端服务可能已在运行")
-        print(f"  [OK] 跳过前端启动")
-        return None
+        print(f"  [*] 端口 {port} 已被占用，关闭已有进程...")
+        find_and_kill_node_process_on_port(port)
+        time.sleep(1)
+        if is_port_in_use(port):
+            print(f"  [WARN] 无法关闭已有进程，前端可能已在运行")
+            print(f"  [OK] 跳过前端启动")
+            return None
 
     # 检查 Node.js
     has_node, node_ver, npm_ver = check_node_npm()
@@ -284,13 +310,13 @@ def main():
     if backend_running:
         print("  [WARN] 后端服务已在端口 8000 运行")
     if frontend_running:
-        print("  [WARN] 前端服务已在端口 1420 运行")
+        print("  [WARN] 前端服务已在端口 3000 运行")
 
     if backend_running and frontend_running:
         print("\n  [INFO] 所有服务已在运行，无需重新启动")
         print("\n" + "=" * 60)
         print("  后端 API:  http://localhost:8000")
-        print("  前端页面:  http://localhost:1420")
+        print("  前端页面:  http://localhost:3000")
         print("  API 文档:  http://localhost:8000/docs")
         print("=" * 60)
         print("\n  按 Ctrl+C 退出（不会停止已有服务）")
@@ -311,7 +337,7 @@ def main():
         backend_process = bp
 
     # 启动前端
-    frontend_port = 1420
+    frontend_port = 3000
     fp = start_frontend(frontend_port)
     if fp:
         frontend_process = fp
@@ -332,7 +358,7 @@ def main():
 
     # 获取实际端口
     actual_backend = 8000 if is_port_in_use(8000) else 8000
-    actual_frontend = 1420 if is_port_in_use(1420) else 1420
+    actual_frontend = 3000 if is_port_in_use(3000) else 3000
 
     print(f"  后端 API:  http://localhost:{actual_backend}")
     print(f"  前端页面:  http://localhost:{actual_frontend}")
@@ -361,7 +387,7 @@ def main():
             # 所有进程都退出了
             if not backend_process and not frontend_process:
                 # 检查是否还有服务在运行
-                if is_port_in_use(8000) or is_port_in_use(1420):
+                if is_port_in_use(8000) or is_port_in_use(3000):
                     print("\n  [INFO] 服务仍在运行，保持监控...")
                     continue
                 else:
