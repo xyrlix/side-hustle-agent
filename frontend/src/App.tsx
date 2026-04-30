@@ -113,7 +113,7 @@ function Dashboard({ onNavigate }: { onNavigate: (page: Page) => void }) {
 
       {/* 快捷入口 */}
       <div>
-        <h3 className="text-lg font-semibold text-white/80 mb-4">快捷操作</h3>
+        <h3 className="text-xl font-semibold text-white/80 mb-4">快捷操作</h3>
         <div className="grid grid-cols-5 gap-4">
           <QuickAction icon="🎯" title="副业推荐" desc="AI智能分析" onClick={() => onNavigate("hustle")} color="purple" />
           <QuickAction icon="📝" title="内容管理" desc="创建内容" onClick={() => onNavigate("content")} color="cyan" />
@@ -136,12 +136,12 @@ function StatCard({ icon, label, value, color }: { icon: string; label: string; 
   const c = colors[color] || colors.purple;
 
   return (
-    <div className={`p-5 rounded-xl ${c.bg} border ${c.border}`}>
+    <div className={`p-6 rounded-xl ${c.bg} border ${c.border}`}>
       <div className="flex items-center gap-4">
-        <span className="text-3xl">{icon}</span>
+        <span className="text-4xl">{icon}</span>
         <div>
-          <div className={`text-2xl font-bold ${c.text}`}>{value}</div>
-          <div className="text-white/50 text-sm mt-0.5">{label}</div>
+          <div className={`text-3xl font-bold ${c.text}`}>{value}</div>
+          <div className="text-white/50 text-base mt-1">{label}</div>
         </div>
       </div>
     </div>
@@ -160,11 +160,11 @@ function QuickAction({ icon, title, desc, onClick, color }: { icon: string; titl
   return (
     <button
       onClick={onClick}
-      className={`p-5 rounded-xl bg-white/5 border border-white/10 text-left transition-all ${colors[color] || colors.purple}`}
+      className={`p-6 rounded-xl bg-white/5 border border-white/10 text-left transition-all ${colors[color] || colors.purple}`}
     >
-      <div className="text-2xl mb-2">{icon}</div>
-      <div className="text-white font-medium">{title}</div>
-      <div className="text-white/40 text-sm mt-1">{desc}</div>
+      <div className="text-3xl mb-3">{icon}</div>
+      <div className="text-white font-semibold text-lg">{title}</div>
+      <div className="text-white/40 text-base mt-1">{desc}</div>
     </button>
   );
 }
@@ -330,7 +330,7 @@ export default function App() {
           {WORKFLOW_SECTIONS.map((section) => (
             <div key={section.id} className="mb-4">
               {sidebarOpen && (
-                <div className="text-xs font-medium text-white/30 uppercase tracking-wider px-3 mb-2">
+                <div className="text-sm font-medium text-white/40 uppercase tracking-wider px-3 mb-2">
                   {section.label}
                 </div>
               )}
@@ -342,15 +342,15 @@ export default function App() {
                     <button
                       key={item}
                       onClick={() => setPage(item as Page)}
-                      className={`w-full px-3 py-2.5 rounded-lg text-left flex items-center gap-3 transition-all ${
+                      className={`w-full px-3 py-3 rounded-lg text-left flex items-center gap-3 transition-all ${
                         isActive
                           ? "bg-purple-600/30 text-purple-200 border border-purple-500/30"
-                          : "text-white/50 hover:text-white hover:bg-white/5"
+                          : "text-white/60 hover:text-white hover:bg-white/5"
                       }`}
                     >
-                      <span className="text-lg flex-shrink-0">{info.icon}</span>
+                      <span className="text-xl flex-shrink-0">{info.icon}</span>
                       {sidebarOpen && (
-                        <span className="text-sm font-medium">{info.title}</span>
+                        <span className="text-base font-medium">{info.title}</span>
                       )}
                     </button>
                   );
@@ -375,23 +375,23 @@ export default function App() {
       {/* 主内容区 */}
       <div className="flex-1 flex flex-col min-w-0">
         {/* 顶部栏 */}
-        <header className="bg-white/[0.03] border-b border-white/[0.08] px-6 py-4 sticky top-0 z-40">
+        <header className="bg-white/[0.03] border-b border-white/[0.08] px-6 py-5 sticky top-0 z-40">
           <div className="flex items-center justify-between">
             <div>
               {/* 面包屑 */}
-              <div className="flex items-center gap-2 text-sm text-white/40 mb-1">
+              <div className="flex items-center gap-2 text-base text-white/40 mb-1">
                 <button onClick={() => setPage("dashboard")} className="hover:text-white transition-colors">工作台</button>
                 {isSubPage && (
                   <>
                     <span>›</span>
-                    <span className="text-white/60">{currentPageInfo.section === 'analyze' ? '副业分析' : currentPageInfo.section === 'create' ? '内容创作' : currentPageInfo.section === 'publish' ? '发布管理' : currentPageInfo.section === 'data' ? '数据分析' : ''}</span>
+                    <span className="text-white/70">{currentPageInfo.section === 'analyze' ? '副业分析' : currentPageInfo.section === 'create' ? '内容创作' : currentPageInfo.section === 'publish' ? '发布管理' : currentPageInfo.section === 'data' ? '数据分析' : ''}</span>
                     <span>›</span>
                     <span className="text-white">{currentPageInfo.title}</span>
                   </>
                 )}
               </div>
               {/* 页面标题 */}
-              <h2 className="text-xl font-bold text-white flex items-center gap-2">
+              <h2 className="text-2xl font-bold text-white flex items-center gap-2">
                 <span>{currentPageInfo.icon}</span>
                 <span>{currentPageInfo.title}</span>
               </h2>
@@ -440,13 +440,13 @@ export default function App() {
 
         {/* 页面描述 */}
         {isSubPage && (
-          <div className="px-6 py-3 bg-white/[0.02] border-b border-white/[0.05]">
-            <p className="text-sm text-white/50">{currentPageInfo.desc}</p>
+          <div className="px-6 py-4 bg-white/[0.02] border-b border-white/[0.05]">
+            <p className="text-base text-white/50">{currentPageInfo.desc}</p>
           </div>
         )}
 
         {/* 主内容 */}
-        <main className="flex-1 p-6 overflow-y-auto">
+        <main className="flex-1 p-8 overflow-y-auto">
           {page === "dashboard" && <Dashboard onNavigate={setPage} />}
           {page === "hustle" && <HustlePage />}
           {page === "content" && (
