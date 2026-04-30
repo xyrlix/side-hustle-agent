@@ -11,8 +11,9 @@ import ContentManager from "./components/ContentManager";
 import AnalyticsDashboard from "./components/AnalyticsDashboard";
 import MaterialManager from "./components/MaterialManager";
 import PlatformManager from "./components/PlatformManager";
+import ScheduledPostsManager from "./components/ScheduledPostsManager";
 
-type Page = "dashboard" | "hustle" | "content" | "analytics" | "platforms" | "materials";
+type Page = "dashboard" | "hustle" | "content" | "analytics" | "platforms" | "materials" | "scheduled";
 
 // 仪表板组件
 function Dashboard({ onNavigate }: { onNavigate: (page: Page) => void }) {
@@ -304,6 +305,7 @@ export default function App() {
     { id: "analytics", label: "数据分析", icon: "📈" },
     { id: "platforms", label: "平台管理", icon: "🔗" },
     { id: "materials", label: "素材库", icon: "📦" },
+    { id: "scheduled", label: "定时发布", icon: "⏰" },
   ];
 
   return (
@@ -408,6 +410,9 @@ export default function App() {
         )}
         {page === "materials" && (
           <MaterialManager token={token} onBack={() => setPage("dashboard")} />
+        )}
+        {page === "scheduled" && (
+          <ScheduledPostsManager token={token} onBack={() => setPage("dashboard")} />
         )}
       </main>
 
