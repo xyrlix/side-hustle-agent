@@ -23,13 +23,13 @@ pip install fastapi uvicorn pydantic-settings anthropic
 ### 开发
 ```bash
 # 启动服务
-uvicorn side_hustle_agent.main:app --reload --port 8000
+python start.py
 
-# 运行测试（无需 API key）
-python tests/test_core.py
+# 运行测试
+pytest tests/unit/ tests/integration/ -v
 
-# CLI 交互模式（需要 API key）
-python -m side_hustle_agent.cli
+# E2E 测试（需要服务运行）
+pytest tests/e2e/ -v
 ```
 
 ### 环境变量
