@@ -351,7 +351,21 @@ export default function App() {
     getConfig().then(setConfig).catch(() => {});
     const storedUser = localStorage.getItem("auth_user");
     if (storedUser) {
-      try { setCurrentUser(JSON.parse(storedUser)); } catch { }
+      try {
+        const parsed = JSON.parse(storedUser);
+        // 确保 role 是有效的
+        const validRoles: Role[] = ["admin", "owner", "editor", "viewer", "guest"];
+        const userWithValidRole: User = {
+          id: parsed.id,
+          username: parsed.username,
+          role: validRoles.includes(parsed.role) ? parsed.role : "viewer"
+        };
+        setCurrentUser(userWithValidRole);
+      } catch (e) {
+        console.error("解析用户失败:", e);
+        localStorage.removeItem("auth_user");
+        localStorage.removeItem("auth_token");
+      }
     }
   }, []);
 
