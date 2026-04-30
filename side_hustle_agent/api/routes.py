@@ -1064,3 +1064,33 @@ async def delete_scheduled_post_api(post_id: int, request: Request):
 
     result = cancel_scheduled_post(post_id)
     return {"success": result.get("deleted", False), "message": "取消成功" if result.get("deleted") else "取消失败"}
+
+
+# ============================================
+# 调度器 API
+# ============================================
+
+@router.post("/scheduler/run")
+async def run_scheduler_api(request: Request):
+    """手动触发调度器执行一次"""
+    await require_admin(request)
+    try:
+        from ..scheduler import scheduler
+        scheduler.run_once()
+        return {"success": True, "message": "调度器已执行"}
+    except Exception as e:
+        return {"success": False, "message": str(e)}
+
+
+@router.get("/scheduler/status")
+async def get_scheduler_status_api(request: Request):
+    """获取调度器状态"""
+    await require_admin(request)
+    try:
+        from ..scheduler import scheduler
+        return {
+            "success": True,
+            "running": scheduler._thread.is_alive() if scheduler._thread else False,
+        }
+    except Exception as e:
+        return {"success": False, "message": str(e)}
