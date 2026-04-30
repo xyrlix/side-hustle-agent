@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { getConfig, saveConfig, UserInput, RecommendationResult, AppConfig, getAnalyticsSummary } from "./api";
+import { getConfig, saveConfig, UserInput, RecommendationResult, AppConfig, getAnalyticsSummary, getToken } from "./api";
 import UserForm from "./components/UserForm";
 import ResultCard from "./components/ResultCard";
 import LoadingSpinner from "./components/LoadingSpinner";
@@ -12,8 +12,11 @@ import AnalyticsDashboard from "./components/AnalyticsDashboard";
 import MaterialManager from "./components/MaterialManager";
 import PlatformManager from "./components/PlatformManager";
 import ScheduledPostsManager from "./components/ScheduledPostsManager";
+import HotTopicsPanel from "./components/HotTopicsPanel";
+import ContentCheckPanel from "./components/ContentCheckPanel";
+import ROIAnalysisPanel from "./components/ROIAnalysisPanel";
 
-type Page = "dashboard" | "hustle" | "content" | "analytics" | "platforms" | "materials" | "scheduled";
+type Page = "dashboard" | "hustle" | "content" | "analytics" | "platforms" | "materials" | "scheduled" | "hottopics" | "check" | "roi";
 
 // 仪表板组件
 function Dashboard({ onNavigate }: { onNavigate: (page: Page) => void }) {
@@ -306,6 +309,9 @@ export default function App() {
     { id: "platforms", label: "平台管理", icon: "🔗" },
     { id: "materials", label: "素材库", icon: "📦" },
     { id: "scheduled", label: "定时发布", icon: "⏰" },
+    { id: "hottopics", label: "热点话题", icon: "🔥" },
+    { id: "check", label: "内容检测", icon: "🔍" },
+    { id: "roi", label: "ROI分析", icon: "💹" },
   ];
 
   return (
@@ -400,19 +406,28 @@ export default function App() {
         {page === "dashboard" && <Dashboard onNavigate={setPage} />}
         {page === "hustle" && <HustlePage />}
         {page === "content" && (
-          <ContentManager token={token} onBack={() => setPage("dashboard")} />
+          <ContentManager token={getToken() || ""} onBack={() => setPage("dashboard")} />
         )}
         {page === "analytics" && (
-          <AnalyticsDashboard token={token} onBack={() => setPage("dashboard")} />
+          <AnalyticsDashboard token={getToken() || ""} onBack={() => setPage("dashboard")} />
         )}
         {page === "platforms" && (
-          <PlatformManager token={token} onBack={() => setPage("dashboard")} />
+          <PlatformManager token={getToken() || ""} onBack={() => setPage("dashboard")} />
         )}
         {page === "materials" && (
-          <MaterialManager token={token} onBack={() => setPage("dashboard")} />
+          <MaterialManager token={getToken() || ""} onBack={() => setPage("dashboard")} />
         )}
         {page === "scheduled" && (
-          <ScheduledPostsManager token={token} onBack={() => setPage("dashboard")} />
+          <ScheduledPostsManager token={getToken() || ""} onBack={() => setPage("dashboard")} />
+        )}
+        {page === "hottopics" && (
+          <HotTopicsPanel token={getToken() || ""} onBack={() => setPage("dashboard")} />
+        )}
+        {page === "check" && (
+          <ContentCheckPanel token={getToken() || ""} onBack={() => setPage("dashboard")} />
+        )}
+        {page === "roi" && (
+          <ROIAnalysisPanel token={getToken() || ""} onBack={() => setPage("dashboard")} />
         )}
       </main>
 

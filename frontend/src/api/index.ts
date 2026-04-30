@@ -534,3 +534,126 @@ export async function assignRole(userId: number, role: string): Promise<any> {
     method: "POST",
   });
 }
+
+// ============ Hot Topics ============
+
+export interface HotTopic {
+  rank: number;
+  title: string;
+  hot_value: number;
+  url?: string;
+  category?: string;
+  source?: string;
+}
+
+export interface HotTopicsResponse {
+  success: boolean;
+  topics: HotTopic[];
+  sources?: Record<string, boolean>;
+}
+
+export async function getHotTopics(source?: string): Promise<HotTopicsResponse> {
+  let url = `${API_BASE}/api/hot-topics`;
+  if (source) url += `?source=${source}`;
+  return contentRequest(url);
+}
+
+export async function getHotTopicsSources(): Promise<any> {
+  return contentRequest(`${API_BASE}/api/hot-topics/sources`);
+}
+
+// ============ Content Check ============
+
+export interface ContentViolation {
+  type: string;
+  category: string;
+  word: string;
+  position: number;
+}
+
+export interface ContentCheckResponse {
+  success: boolean;
+  passed: boolean;
+  score: number;
+  summary: string;
+  violations: ContentViolation[];
+  suggestions: Array<{
+    original: string;
+    suggestion: string;
+    reason: string;
+  }>;
+  ad_violations_count: number;
+  limit_violations_count: number;
+}
+
+export async function checkContent(title: string, body: string): Promise<ContentCheckResponse> {
+  return contentRequest(`${API_BASE}/api/content/check`, {
+    method: "POST",
+    body: JSON.stringify({ title, body }),
+  });
+}
+
+// ============ ROI Analysis ============
+
+export interface ContentROI {
+  views: number;
+  likes: number;
+  comments: number;
+  shares: number;
+  direct_revenue: number;
+  estimated_revenue: number;
+  total_revenue: number;
+  cost: number;
+  roi: number;
+  cpm: number;
+  engagement_rate: number;
+  rating: string;
+  platform: string;
+}
+
+export interface CampaignROI {
+  total_content: number;
+  total_views: number;
+  total_revenue: number;
+  total_cost: number;
+  roi: number;
+  avg_cpm: number;
+  avg_engagement: number;
+  top_content: {
+    id: number | null;
+    title: string;
+    views: number;
+  };
+  platform_breakdown: Array<{
+    platform: string;
+    views: number;
+    revenue: number;
+    cpm: number;
+    count: number;
+  }>;
+  date_range: {
+    start: string | null;
+    end: string | null;
+  };
+}
+
+export async function getContentROI(contentId: number, cost?: number): Promise<any> {
+  let url = `${API_BASE}/api/roi/content/${contentId}`;
+  if (cost !== undefined) url += `?cost=${cost}`;
+  return contentRequest(url);
+}
+
+export async function getCampaignROI(startDate?: string, endDate?: string, cost?: number): Promise<any> {
+  let url = `${API_BASE}/api/roi/campaign`;
+  const params = new URLSearchParams();
+  if (startDate) params.set("start_date", startDate);
+  if (endDate) params.set("end_date", endDate);
+  if (cost !== undefined) params.set("cost", String(cost));
+  const query = params.toString();
+  if (query) url += `?${query}`;
+  return contentRequest(url);
+}
+
+export async function getROIAdvice(currentROI: number, targetROI: number = 50): Promise<any> {
+  return contentRequest(`${API_BASE}/api/roi/advice?current_roi=${currentROI}&target_roi=${targetROI}`);
+}

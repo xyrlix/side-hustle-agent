@@ -1094,3 +1094,200 @@ async def get_scheduler_status_api(request: Request):
         }
     except Exception as e:
         return {"success": False, "message": str(e)}
+
+
+# ============================================
+# 热点话题 API
+# ============================================
+
+@router.get("/hot-topics")
+async def get_hot_topics_api(request: Request, source: str = None):
+    """获取热点话题"""
+    user = await get_current_user(request)
+    if not user:
+        return {"success": False, "message": "请先登录"}
+
+    try:
+        from ..hot_topics import get_hot_topics_fetcher
+
+        fetcher = get_hot_topics_fetcher()
+
+        if source == "weibo":
+            result = await fetcher.fetch_weibo_hot()
+        elif source == "douyin":
+            result = await fetcher.fetch_douyin_trending()
+        elif source == "toutiao":
+            result = await fetcher.fetch_toutiao_hot()
+        else:
+            # 返回所有平台
+            result = await fetcher.fetch_all()
+
+        if result.get("success"):
+            return {
+                "success": True,
+                "topics": result.get("topics", []),
+                "sources": result.get("sources", {}),
+            }
+        else:
+            return {"success": False, "message": result.get("error", "获取失败")}
+    except Exception as e:
+        return {"success": False, "message": f"获取热点话题失败: {str(e)}"}
+
+
+@router.get("/hot-topics/sources")
+async def get_hot_topics_sources():
+    """获取支持的热点话题来源"""
+    return {
+        "success": True,
+        "sources": [
+            {"id": "weibo", "name": "微博热搜", "icon": "🔥"},
+            {"id": "douyin", "name": "抖音热榜", "icon": "🎵"},
+            {"id": "toutiao", "name": "头条热榜", "icon": "📰"},
+        ]
+    }
+
+
+# ============================================
+# 内容违规检测 API
+# ============================================
+
+class ContentCheckRequest(BaseModel):
+    title: str = ""
+    body: str = ""
+
+
+@router.post("/content/check")
+async def check_content_api(request: Request, data: ContentCheckRequest):
+    """检测内容违规词"""
+    user = await get_current_user(request)
+    if not user:
+        return {"success": False, "message": "请先登录"}
+
+    try:
+        from ..content_filter import check_content, suggest_fix
+
+        text = f"{data.title} {data.body}".strip()
+        result = check_content(text)
+
+        # 如果有违规，生成修改建议
+        suggestions = []
+        if not result["passed"]:
+            suggestions = suggest_fix(text, result["violations"])["suggestions"]
+
+        return {
+            "success": True,
+            "passed": result["passed"],
+            "score": result["score"],
+            "summary": result["summary"],
+            "violations": result["violations"],
+            "suggestions": suggestions,
+            "ad_violations_count": result.get("ad_violations_count", 0),
+            "limit_violations_count": result.get("limit_violations_count", 0),
+        }
+    except Exception as e:
+        return {"success": False, "message": f"检测失败: {str(e)}"}
+
+
+# ============================================
+# ROI 分析 API
+# ============================================
+
+@router.get("/roi/content/{content_id}")
+async def analyze_content_roi_api(content_id: int, request: Request, cost: float = 0):
+    """分析单个内容的 ROI"""
+    user = await get_current_user(request)
+    if not user:
+        return {"success": False, "message": "请先登录"}
+
+    try:
+        from ..roi_analyzer import analyze_content_roi
+        from ..core.database import get_content_by_id
+
+        content = get_content_by_id(content_id, user["user_id"])
+        if not content:
+            return {"success": False, "message": "内容不存在"}
+
+        content_data = {
+            "id": content["id"],
+            "title": content.get("title", ""),
+            "views": content.get("views", 0),
+            "likes": content.get("likes", 0),
+            "comments": content.get("comments", 0),
+            "shares": content.get("shares", 0),
+            "revenue": content.get("revenue", 0),
+            "platform": content.get("category", "wechat_public"),
+        }
+
+        result = analyze_content_roi(content_data, cost)
+        return {"success": True, "roi": result}
+    except Exception as e:
+        return {"success": False, "message": f"分析失败: {str(e)}"}
+
+
+@router.get("/roi/campaign")
+async def analyze_campaign_roi_api(
+    request: Request,
+    start_date: str = None,
+    end_date: str = None,
+    cost: float = 0
+):
+    """分析整体/活动 ROI"""
+    user = await get_current_user(request)
+    if not user:
+        return {"success": False, "message": "请先登录"}
+
+    try:
+        from ..roi_analyzer import analyze_campaign_roi
+        from ..core.database import get_user_contents
+
+        contents = get_user_contents(user["user_id"], limit=1000)
+
+        # 过滤日期范围
+        if start_date or end_date:
+            from datetime import datetime
+            filtered = []
+            for c in contents:
+                created = c.get("created_at", "")
+                if created:
+                    created_date = created.split(" ")[0] if " " in created else created
+                    if start_date and created_date < start_date:
+                        continue
+                    if end_date and created_date > end_date:
+                        continue
+                filtered.append(c)
+            contents = filtered
+
+        content_data = []
+        for c in contents:
+            content_data.append({
+                "id": c["id"],
+                "title": c.get("title", ""),
+                "views": c.get("views", 0),
+                "likes": c.get("likes", 0),
+                "comments": c.get("comments", 0),
+                "shares": c.get("shares", 0),
+                "revenue": c.get("revenue", 0),
+                "platform": c.get("category", "wechat_public"),
+            })
+
+        result = analyze_campaign_roi(content_data, cost, start_date, end_date)
+        return {"success": True, "roi": result}
+    except Exception as e:
+        return {"success": False, "message": f"分析失败: {str(e)}"}
+
+
+@router.get("/roi/advice")
+async def get_roi_advice_api(request: Request, current_roi: float = 0, target_roi: float = 50):
+    """获取 ROI 优化建议"""
+    user = await get_current_user(request)
+    if not user:
+        return {"success": False, "message": "请先登录"}
+
+    try:
+        from ..roi_analyzer import get_roi_analyzer
+
+        analyzer = get_roi_analyzer()
+        advice = analyzer.get_investment_advice(current_roi, target_roi)
+        return {"success": True, "advice": advice}
+    except Exception as e:
+        return {"success": False, "message": f"获取建议失败: {str(e)}"}
