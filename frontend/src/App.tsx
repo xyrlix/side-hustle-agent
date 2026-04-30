@@ -18,6 +18,49 @@ import ROIAnalysisPanel from "./components/ROIAnalysisPanel";
 
 type Page = "dashboard" | "hustle" | "content" | "analytics" | "platforms" | "materials" | "scheduled" | "hottopics" | "check" | "roi";
 
+// 页面信息
+const PAGE_INFO: Record<Page, { title: string; icon: string; section: string; desc: string }> = {
+  dashboard: { title: "工作台", icon: "📊", section: "main", desc: "查看整体运营状况" },
+  hustle: { title: "副业推荐", icon: "🎯", section: "analyze", desc: "AI 智能分析您的最佳副业方向" },
+  content: { title: "内容管理", icon: "📝", section: "create", desc: "创建、编辑、发布内容" },
+  analytics: { title: "数据分析", icon: "📈", section: "data", desc: "查看内容运营数据" },
+  platforms: { title: "平台管理", icon: "🔗", section: "publish", desc: "管理社交媒体平台账号" },
+  materials: { title: "素材库", icon: "📦", section: "create", desc: "管理图片、视频等素材" },
+  scheduled: { title: "定时发布", icon: "⏰", section: "publish", desc: "管理定时发布任务" },
+  hottopics: { title: "热点话题", icon: "🔥", section: "create", desc: "追踪各平台热点话题" },
+  check: { title: "内容检测", icon: "🔍", section: "create", desc: "检测违规词和限流风险" },
+  roi: { title: "ROI分析", icon: "💹", section: "data", desc: "投资回报率分析" },
+};
+
+// 工作流分组
+const WORKFLOW_SECTIONS = [
+  {
+    id: "main",
+    label: "工作台",
+    items: ["dashboard"]
+  },
+  {
+    id: "analyze",
+    label: "副业分析",
+    items: ["hustle"]
+  },
+  {
+    id: "create",
+    label: "内容创作",
+    items: ["content", "materials", "hottopics", "check"]
+  },
+  {
+    id: "publish",
+    label: "发布管理",
+    items: ["platforms", "scheduled"]
+  },
+  {
+    id: "data",
+    label: "数据分析",
+    items: ["analytics", "roi"]
+  },
+];
+
 // 仪表板组件
 function Dashboard({ onNavigate }: { onNavigate: (page: Page) => void }) {
   const [stats, setStats] = useState<any>(null);
@@ -36,92 +79,48 @@ function Dashboard({ onNavigate }: { onNavigate: (page: Page) => void }) {
   };
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-6">
       {/* 欢迎区块 */}
       <div className="relative rounded-2xl overflow-hidden">
         <HeroBackground />
-        <div className="relative z-10 p-6 bg-gradient-to-r from-purple-900/60 to-indigo-900/60 backdrop-blur-sm border border-white/10 rounded-2xl">
-          <div className="flex items-center justify-between">
-            <div>
-              <h2 className="text-2xl font-bold text-white">欢迎使用副业雷达</h2>
-              <p className="text-white/50 text-sm mt-1">基于 AI 智能分析，为你匹配最适合的副业方向</p>
-            </div>
-            <div className="flex gap-3">
-              <button
-                onClick={() => onNavigate("hustle")}
-                className="px-5 py-2.5 bg-purple-600 hover:bg-purple-700 text-white rounded-lg font-medium flex items-center gap-2 transition-all"
-              >
-                <span>🎯</span> 副业推荐
-              </button>
-              <button
-                onClick={() => onNavigate("content")}
-                className="px-5 py-2.5 bg-white/10 hover:bg-white/20 text-white rounded-lg font-medium flex items-center gap-2 transition-all border border-white/20"
-              >
-                <span>📝</span> 内容管理
-              </button>
-            </div>
+        <div className="relative z-10 p-8 bg-gradient-to-r from-purple-900/60 to-indigo-900/60 backdrop-blur-sm border border-white/10 rounded-2xl">
+          <h2 className="text-3xl font-bold text-white">欢迎使用副业雷达</h2>
+          <p className="text-white/60 text-lg mt-2">基于 AI 智能分析，为你匹配最适合的副业方向</p>
+          <div className="flex gap-4 mt-6">
+            <button
+              onClick={() => onNavigate("hustle")}
+              className="px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white rounded-xl font-medium text-base flex items-center gap-2 transition-all shadow-lg shadow-purple-500/30"
+            >
+              <span>🎯</span> 开始副业推荐
+            </button>
+            <button
+              onClick={() => onNavigate("content")}
+              className="px-6 py-3 bg-white/10 hover:bg-white/20 text-white rounded-xl font-medium text-base flex items-center gap-2 transition-all border border-white/20"
+            >
+              <span>📝</span> 内容管理
+            </button>
           </div>
         </div>
       </div>
 
       {/* 统计卡片 */}
-      <div className="grid grid-cols-4 gap-4">
-        <StatCard
-          icon="📊"
-          label="内容总数"
-          value={stats?.total_content || 0}
-          color="purple"
-        />
-        <StatCard
-          icon="✅"
-          label="已发布"
-          value={stats?.published || 0}
-          color="green"
-        />
-        <StatCard
-          icon="👁️"
-          label="总阅读量"
-          value={stats?.total_views || 0}
-          color="blue"
-        />
-        <StatCard
-          icon="💰"
-          label="总收益"
-          value={`¥${stats?.total_revenue || 0}`}
-          color="yellow"
-        />
+      <div className="grid grid-cols-4 gap-5">
+        <StatCard icon="📊" label="内容总数" value={stats?.total_content || 0} color="purple" />
+        <StatCard icon="✅" label="已发布" value={stats?.published || 0} color="green" />
+        <StatCard icon="👁️" label="总阅读量" value={stats?.total_views || 0} color="blue" />
+        <StatCard icon="💰" label="总收益" value={`¥${stats?.total_revenue || 0}`} color="yellow" />
       </div>
 
-      {/* 快捷操作 */}
-      <div className="grid grid-cols-4 gap-4">
-        <QuickAction
-          icon="🤖"
-          title="AI 内容生成"
-          desc="快速生成各平台适配内容"
-          onClick={() => onNavigate("content")}
-          color="cyan"
-        />
-        <QuickAction
-          icon="📰"
-          title="副业推荐分析"
-          desc="智能匹配最适合你的副业"
-          onClick={() => onNavigate("hustle")}
-          color="purple"
-        />
-        <QuickAction
-          icon="📈"
-          title="数据看板"
-          desc="查看运营数据和收益分析"
-          onClick={() => onNavigate("analytics")}
-          color="green"
-        />
-        <QuickAction
-          icon="📦"
-          title="平台管理"
-          desc="管理社交媒体平台账号"
-          onClick={() => onNavigate("platforms")}
-          color="orange"
-        />
+      {/* 快捷入口 */}
+      <div>
+        <h3 className="text-lg font-semibold text-white/80 mb-4">快捷操作</h3>
+        <div className="grid grid-cols-5 gap-4">
+          <QuickAction icon="🎯" title="副业推荐" desc="AI智能分析" onClick={() => onNavigate("hustle")} color="purple" />
+          <QuickAction icon="📝" title="内容管理" desc="创建内容" onClick={() => onNavigate("content")} color="cyan" />
+          <QuickAction icon="📈" title="数据分析" desc="查看报表" onClick={() => onNavigate("analytics")} color="green" />
+          <QuickAction icon="🔥" title="热点话题" desc="追踪热点" onClick={() => onNavigate("hottopics")} color="orange" />
+          <QuickAction icon="💹" title="ROI分析" desc="效益分析" onClick={() => onNavigate("roi")} color="pink" />
+        </div>
       </div>
     </div>
   );
@@ -137,12 +136,12 @@ function StatCard({ icon, label, value, color }: { icon: string; label: string; 
   const c = colors[color] || colors.purple;
 
   return (
-    <div className={`p-4 rounded-xl ${c.bg} border ${c.border}`}>
-      <div className="flex items-center gap-3">
-        <span className="text-2xl">{icon}</span>
+    <div className={`p-5 rounded-xl ${c.bg} border ${c.border}`}>
+      <div className="flex items-center gap-4">
+        <span className="text-3xl">{icon}</span>
         <div>
           <div className={`text-2xl font-bold ${c.text}`}>{value}</div>
-          <div className="text-white/40 text-xs">{label}</div>
+          <div className="text-white/50 text-sm mt-0.5">{label}</div>
         </div>
       </div>
     </div>
@@ -150,22 +149,22 @@ function StatCard({ icon, label, value, color }: { icon: string; label: string; 
 }
 
 function QuickAction({ icon, title, desc, onClick, color }: { icon: string; title: string; desc: string; onClick: () => void; color: string }) {
-  const colors: Record<string, { bg: string; hover: string; border: string }> = {
-    cyan: { bg: "bg-cyan-500/10", hover: "hover:bg-cyan-500/20", border: "border-cyan-500/30" },
-    purple: { bg: "bg-purple-500/10", hover: "hover:bg-purple-500/20", border: "border-purple-500/30" },
-    green: { bg: "bg-green-500/10", hover: "hover:bg-green-500/20", border: "border-green-500/30" },
-    orange: { bg: "bg-orange-500/10", hover: "hover:bg-orange-500/20", border: "border-orange-500/30" },
+  const colors: Record<string, string> = {
+    purple: "hover:border-purple-400/50 hover:bg-purple-500/10",
+    cyan: "hover:border-cyan-400/50 hover:bg-cyan-500/10",
+    green: "hover:border-green-400/50 hover:bg-green-500/10",
+    orange: "hover:border-orange-400/50 hover:bg-orange-500/10",
+    pink: "hover:border-pink-400/50 hover:bg-pink-500/10",
   };
-  const c = colors[color] || colors.purple;
 
   return (
     <button
       onClick={onClick}
-      className={`p-5 rounded-xl ${c.bg} ${c.hover} border ${c.border} text-left transition-all group`}
+      className={`p-5 rounded-xl bg-white/5 border border-white/10 text-left transition-all ${colors[color] || colors.purple}`}
     >
       <div className="text-2xl mb-2">{icon}</div>
-      <div className="text-white font-bold text-sm mb-1 group-hover:text-purple-300 transition-colors">{title}</div>
-      <div className="text-white/40 text-xs">{desc}</div>
+      <div className="text-white font-medium">{title}</div>
+      <div className="text-white/40 text-sm mt-1">{desc}</div>
     </button>
   );
 }
@@ -197,23 +196,18 @@ function HustlePage() {
   };
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-6">
       {/* Hero Form */}
       <div className="relative rounded-2xl overflow-hidden">
         <HeroBackground />
-        <div
-          className="relative z-10 p-6"
-          style={{
-            background: "linear-gradient(135deg, rgba(15,15,40,0.75) 0%, rgba(30,27,75,0.6) 50%, rgba(15,15,40,0.8) 100%)",
-          }}
-        >
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10 rounded-xl bg-purple-600/40 border border-purple-400/30 flex items-center justify-center backdrop-blur-sm">
-              <span className="text-xl">📡</span>
+        <div className="relative z-10 p-8" style={{ background: "linear-gradient(135deg, rgba(15,15,40,0.75) 0%, rgba(30,27,75,0.6) 50%, rgba(15,15,40,0.8) 100%)" }}>
+          <div className="flex items-center gap-4 mb-6">
+            <div className="w-12 h-12 rounded-xl bg-purple-600/40 border border-purple-400/30 flex items-center justify-center">
+              <span className="text-2xl">📡</span>
             </div>
             <div>
-              <h2 className="text-xl font-bold text-white">开始智能匹配</h2>
-              <p className="text-white/50 text-sm">填写信息，多智能体协同分析您的最佳副业方向</p>
+              <h2 className="text-2xl font-bold text-white">开始智能匹配</h2>
+              <p className="text-white/50 mt-1">填写信息，多智能体协同分析您的最佳副业方向</p>
             </div>
           </div>
           <UserForm onSubmit={handleSubmit} disabled={loading} />
@@ -224,10 +218,10 @@ function HustlePage() {
       {loading && (
         <div className="relative rounded-2xl overflow-hidden">
           <HeroBackground />
-          <div className="relative z-10 bg-white/[0.05] backdrop-blur-xl border border-white/10 rounded-2xl p-12 text-center">
+          <div className="relative z-10 bg-white/[0.05] backdrop-blur-xl border border-white/10 rounded-2xl p-16 text-center">
             <LoadingSpinner />
-            <p className="text-white mt-6 text-lg font-medium">深度分析中...</p>
-            <p className="text-white/40 mt-2 text-sm">多智能体协同推理 · 请稍候</p>
+            <p className="text-white mt-8 text-xl font-medium">深度分析中...</p>
+            <p className="text-white/40 mt-2">多智能体协同推理 · 请稍候</p>
           </div>
         </div>
       )}
@@ -241,14 +235,14 @@ function HustlePage() {
 
       {/* Results */}
       {result?.success && result.data && (
-        <div className="space-y-4">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-green-500/20 border border-green-500/30 flex items-center justify-center">
-              <span className="text-xl">🎯</span>
+        <div className="space-y-5">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 rounded-xl bg-green-500/20 border border-green-500/30 flex items-center justify-center">
+              <span className="text-2xl">🎯</span>
             </div>
             <div>
-              <h2 className="text-xl font-bold text-white">为您推荐</h2>
-              <p className="text-white/40 text-xs">基于深度画像分析生成</p>
+              <h2 className="text-2xl font-bold text-white">为您推荐</h2>
+              <p className="text-white/40 mt-1">基于深度画像分析生成</p>
             </div>
           </div>
           <ResultCard data={result.data} />
@@ -272,6 +266,7 @@ export default function App() {
   const [showLogin, setShowLogin] = useState(false);
   const [showAdmin, setShowAdmin] = useState(false);
   const [currentUser, setCurrentUser] = useState<{ id: number; username: string; role: string } | null>(null);
+  const [sidebarOpen, setSidebarOpen] = useState(true);
 
   useEffect(() => {
     getConfig().then(setConfig).catch(() => {});
@@ -306,131 +301,126 @@ export default function App() {
     }
   };
 
-  // 主导航
-  const mainNavItems: { id: Page; label: string; icon: string }[] = [
-    { id: "dashboard", label: "首页", icon: "📊" },
-    { id: "hustle", label: "副业推荐", icon: "🎯" },
-    { id: "content", label: "内容管理", icon: "📝" },
-  ];
+  const currentPageInfo = PAGE_INFO[page];
 
-  // 运营工具
-  const toolsNavItems: { id: Page; label: string; icon: string }[] = [
-    { id: "analytics", label: "数据分析", icon: "📈" },
-    { id: "platforms", label: "平台管理", icon: "🔗" },
-    { id: "materials", label: "素材库", icon: "📦" },
-    { id: "scheduled", label: "定时发布", icon: "⏰" },
-    { id: "hottopics", label: "热点话题", icon: "🔥" },
-    { id: "check", label: "内容检测", icon: "🔍" },
-    { id: "roi", label: "ROI分析", icon: "💹" },
-  ];
-
-  const [showTools, setShowTools] = useState(false);
+  // 判断是否在子页面
+  const isSubPage = page !== "dashboard";
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-950 to-indigo-950">
-      {/* Ambient background */}
-      <div className="fixed inset-0 pointer-events-none z-0">
-        <div className="absolute w-[700px] h-[700px] rounded-full"
-          style={{ background: "radial-gradient(circle, rgba(109,40,217,0.3) 0%, transparent 70%)", top: "-15%", left: "-10%", filter: "blur(60px)" }} />
-        <div className="absolute w-[500px] h-[500px] rounded-full"
-          style={{ background: "radial-gradient(circle, rgba(168,85,247,0.2) 0%, transparent 70%)", top: "20%", right: "-5%", filter: "blur(80px)" }} />
-        <div className="absolute w-[400px] h-[400px] rounded-full"
-          style={{ background: "radial-gradient(circle, rgba(79,70,229,0.2) 0%, transparent 70%)", bottom: "5%", left: "20%", filter: "blur(80px)" }} />
-      </div>
-
-      {/* Header */}
-      <header className="relative z-50 bg-white/[0.04] backdrop-blur-xl border-b border-white/[0.08] sticky top-0">
-        <div className="max-w-7xl mx-auto px-6 py-3">
-          <div className="flex items-center justify-between">
-            {/* Logo */}
-            <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-lg bg-purple-600/40 border border-purple-400/30 flex items-center justify-center">
-                <span className="text-lg">📡</span>
-              </div>
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-950 to-indigo-950 flex">
+      {/* 侧边栏 */}
+      <aside className={`${sidebarOpen ? 'w-64' : 'w-20'} bg-white/[0.03] border-r border-white/[0.08] flex flex-col transition-all duration-300 sticky top-0 h-screen`}>
+        {/* Logo */}
+        <div className="p-4 border-b border-white/[0.08]">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-purple-600/40 border border-purple-400/30 flex items-center justify-center flex-shrink-0">
+              <span className="text-xl">📡</span>
+            </div>
+            {sidebarOpen && (
               <div>
-                <h1 className="text-xl font-bold text-white">副业雷达</h1>
+                <h1 className="text-lg font-bold text-white">副业雷达</h1>
+                <p className="text-white/30 text-xs">多平台管理</p>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* 导航列表 */}
+        <nav className="flex-1 p-3 overflow-y-auto">
+          {WORKFLOW_SECTIONS.map((section) => (
+            <div key={section.id} className="mb-4">
+              {sidebarOpen && (
+                <div className="text-xs font-medium text-white/30 uppercase tracking-wider px-3 mb-2">
+                  {section.label}
+                </div>
+              )}
+              <div className="space-y-1">
+                {section.items.map((item) => {
+                  const info = PAGE_INFO[item as Page];
+                  const isActive = page === item;
+                  return (
+                    <button
+                      key={item}
+                      onClick={() => setPage(item as Page)}
+                      className={`w-full px-3 py-2.5 rounded-lg text-left flex items-center gap-3 transition-all ${
+                        isActive
+                          ? "bg-purple-600/30 text-purple-200 border border-purple-500/30"
+                          : "text-white/50 hover:text-white hover:bg-white/5"
+                      }`}
+                    >
+                      <span className="text-lg flex-shrink-0">{info.icon}</span>
+                      {sidebarOpen && (
+                        <span className="text-sm font-medium">{info.title}</span>
+                      )}
+                    </button>
+                  );
+                })}
               </div>
             </div>
+          ))}
+        </nav>
 
-            {/* Navigation */}
-            <nav className="flex items-center gap-1">
-              {mainNavItems.map((item) => (
-                <button
-                  key={item.id}
-                  onClick={() => setPage(item.id)}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2 transition-all ${
-                    page === item.id
-                      ? "bg-purple-600/40 text-purple-200 border border-purple-400/40"
-                      : "text-white/50 hover:text-white hover:bg-white/5"
-                  }`}
-                >
-                  <span>{item.icon}</span>
-                  <span>{item.label}</span>
-                </button>
-              ))}
+        {/* 折叠按钮 */}
+        <div className="p-3 border-t border-white/[0.08]">
+          <button
+            onClick={() => setSidebarOpen(!sidebarOpen)}
+            className="w-full px-3 py-2 rounded-lg text-white/40 hover:text-white hover:bg-white/5 transition-all flex items-center justify-center gap-2 text-sm"
+          >
+            <span>{sidebarOpen ? '◀' : '▶'}</span>
+            {sidebarOpen && <span>收起</span>}
+          </button>
+        </div>
+      </aside>
 
-              {/* 运营工具下拉 */}
-              <div className="relative">
-                <button
-                  onClick={() => setShowTools(!showTools)}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2 transition-all ${
-                    toolsNavItems.some(item => page === item.id)
-                      ? "bg-purple-600/40 text-purple-200 border border-purple-400/40"
-                      : "text-white/50 hover:text-white hover:bg-white/5"
-                  }`}
-                >
-                  <span>🛠️</span>
-                  <span>运营工具</span>
-                  <span className={`text-xs transition-transform ${showTools ? 'rotate-180' : ''}`}>▼</span>
-                </button>
-
-                {/* 下拉菜单 */}
-                {showTools && (
-                  <div className="absolute top-full left-0 mt-2 w-48 bg-gray-900/95 backdrop-blur-xl border border-white/10 rounded-xl shadow-2xl py-2 z-50">
-                    {toolsNavItems.map((item) => (
-                      <button
-                        key={item.id}
-                        onClick={() => {
-                          setPage(item.id);
-                          setShowTools(false);
-                        }}
-                        className={`w-full px-4 py-2.5 text-left text-sm flex items-center gap-3 transition-all ${
-                          page === item.id
-                            ? "bg-purple-600/30 text-purple-200"
-                            : "text-white/60 hover:text-white hover:bg-white/5"
-                        }`}
-                      >
-                        <span>{item.icon}</span>
-                        <span>{item.label}</span>
-                      </button>
-                    ))}
-                  </div>
+      {/* 主内容区 */}
+      <div className="flex-1 flex flex-col min-w-0">
+        {/* 顶部栏 */}
+        <header className="bg-white/[0.03] border-b border-white/[0.08] px-6 py-4 sticky top-0 z-40">
+          <div className="flex items-center justify-between">
+            <div>
+              {/* 面包屑 */}
+              <div className="flex items-center gap-2 text-sm text-white/40 mb-1">
+                <button onClick={() => setPage("dashboard")} className="hover:text-white transition-colors">工作台</button>
+                {isSubPage && (
+                  <>
+                    <span>›</span>
+                    <span className="text-white/60">{currentPageInfo.section === 'analyze' ? '副业分析' : currentPageInfo.section === 'create' ? '内容创作' : currentPageInfo.section === 'publish' ? '发布管理' : currentPageInfo.section === 'data' ? '数据分析' : ''}</span>
+                    <span>›</span>
+                    <span className="text-white">{currentPageInfo.title}</span>
+                  </>
                 )}
               </div>
-            </nav>
+              {/* 页面标题 */}
+              <h2 className="text-xl font-bold text-white flex items-center gap-2">
+                <span>{currentPageInfo.icon}</span>
+                <span>{currentPageInfo.title}</span>
+              </h2>
+            </div>
 
-            {/* User Actions */}
-            <div className="flex items-center gap-2">
+            {/* 用户操作 */}
+            <div className="flex items-center gap-3">
               {currentUser ? (
                 <>
-                  <span className="text-white/40 text-sm">{currentUser.username}</span>
+                  <span className="text-white/60 text-sm">
+                    <span className="text-purple-400 font-medium">{currentUser.username}</span>
+                  </span>
                   {currentUser.role === "admin" && (
                     <button
                       onClick={() => setShowAdmin(true)}
-                      className="px-3 py-1.5 bg-purple-600/30 hover:bg-purple-600/50 text-purple-300 rounded-lg text-xs border border-purple-500/30"
+                      className="px-3 py-1.5 bg-purple-600/30 hover:bg-purple-600/50 text-purple-300 rounded-lg text-sm border border-purple-500/30"
                     >
                       管理
                     </button>
                   )}
                   <button
                     onClick={() => setShowConfig(true)}
-                    className="px-3 py-1.5 bg-white/5 hover:bg-white/10 text-white/60 rounded-lg text-xs border border-white/10"
+                    className="px-3 py-1.5 bg-white/5 hover:bg-white/10 text-white/60 rounded-lg text-sm border border-white/10"
                   >
-                    ⚙️
+                    ⚙️ 设置
                   </button>
                   <button
                     onClick={handleLogout}
-                    className="px-3 py-1.5 bg-white/5 hover:bg-white/10 text-white/60 rounded-lg text-xs border border-white/10"
+                    className="px-3 py-1.5 bg-white/5 hover:bg-white/10 text-white/60 rounded-lg text-sm border border-white/10"
                   >
                     退出
                   </button>
@@ -446,38 +436,45 @@ export default function App() {
               )}
             </div>
           </div>
-        </div>
-      </header>
+        </header>
 
-      {/* Main Content */}
-      <main className="relative z-10 max-w-7xl mx-auto px-6 py-6">
-        {page === "dashboard" && <Dashboard onNavigate={setPage} />}
-        {page === "hustle" && <HustlePage />}
-        {page === "content" && (
-          <ContentManager token={getToken() || ""} onBack={() => setPage("dashboard")} />
+        {/* 页面描述 */}
+        {isSubPage && (
+          <div className="px-6 py-3 bg-white/[0.02] border-b border-white/[0.05]">
+            <p className="text-sm text-white/50">{currentPageInfo.desc}</p>
+          </div>
         )}
-        {page === "analytics" && (
-          <AnalyticsDashboard token={getToken() || ""} onBack={() => setPage("dashboard")} />
-        )}
-        {page === "platforms" && (
-          <PlatformManager token={getToken() || ""} onBack={() => setPage("dashboard")} />
-        )}
-        {page === "materials" && (
-          <MaterialManager token={getToken() || ""} onBack={() => setPage("dashboard")} />
-        )}
-        {page === "scheduled" && (
-          <ScheduledPostsManager token={getToken() || ""} onBack={() => setPage("dashboard")} />
-        )}
-        {page === "hottopics" && (
-          <HotTopicsPanel token={getToken() || ""} onBack={() => setPage("dashboard")} />
-        )}
-        {page === "check" && (
-          <ContentCheckPanel token={getToken() || ""} onBack={() => setPage("dashboard")} />
-        )}
-        {page === "roi" && (
-          <ROIAnalysisPanel token={getToken() || ""} onBack={() => setPage("dashboard")} />
-        )}
-      </main>
+
+        {/* 主内容 */}
+        <main className="flex-1 p-6 overflow-y-auto">
+          {page === "dashboard" && <Dashboard onNavigate={setPage} />}
+          {page === "hustle" && <HustlePage />}
+          {page === "content" && (
+            <ContentManager token={getToken() || ""} onBack={() => setPage("dashboard")} />
+          )}
+          {page === "analytics" && (
+            <AnalyticsDashboard token={getToken() || ""} onBack={() => setPage("dashboard")} />
+          )}
+          {page === "platforms" && (
+            <PlatformManager token={getToken() || ""} onBack={() => setPage("dashboard")} />
+          )}
+          {page === "materials" && (
+            <MaterialManager token={getToken() || ""} onBack={() => setPage("dashboard")} />
+          )}
+          {page === "scheduled" && (
+            <ScheduledPostsManager token={getToken() || ""} onBack={() => setPage("dashboard")} />
+          )}
+          {page === "hottopics" && (
+            <HotTopicsPanel token={getToken() || ""} onBack={() => setPage("dashboard")} />
+          )}
+          {page === "check" && (
+            <ContentCheckPanel token={getToken() || ""} onBack={() => setPage("dashboard")} />
+          )}
+          {page === "roi" && (
+            <ROIAnalysisPanel token={getToken() || ""} onBack={() => setPage("dashboard")} />
+          )}
+        </main>
+      </div>
 
       {/* Modals */}
       {showConfig && (
