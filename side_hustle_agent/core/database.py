@@ -185,6 +185,87 @@ def init_db():
         )
     """)
 
+    # RBAC 权限表
+    # 角色表
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS roles (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT UNIQUE NOT NULL,
+            description TEXT DEFAULT '',
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    """)
+
+    # 权限表
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS permissions (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT UNIQUE NOT NULL,
+            description TEXT DEFAULT '',
+            resource TEXT NOT NULL,
+            action TEXT NOT NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    """)
+
+    # 角色权限关联表
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS role_permissions (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            role_id INTEGER NOT NULL,
+            permission_id INTEGER NOT NULL,
+            FOREIGN KEY (role_id) REFERENCES roles(id),
+            FOREIGN KEY (permission_id) REFERENCES permissions(id),
+            UNIQUE(role_id, permission_id)
+        )
+    """)
+
+    # 用户角色关联表
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS user_roles (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER NOT NULL,
+            role_id INTEGER NOT NULL,
+            scope TEXT DEFAULT 'global',
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (user_id) REFERENCES users(id),
+            FOREIGN KEY (role_id) REFERENCES roles(id),
+            UNIQUE(user_id, role_id)
+        )
+    """)
+
+    # 数据分析表
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS analytics (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER NOT NULL,
+            platform TEXT NOT NULL,
+            date DATE NOT NULL,
+            views INTEGER DEFAULT 0,
+            likes INTEGER DEFAULT 0,
+            comments INTEGER DEFAULT 0,
+            shares INTEGER DEFAULT 0,
+            followers INTEGER DEFAULT 0,
+            revenue REAL DEFAULT 0,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (user_id) REFERENCES users(id),
+            UNIQUE(user_id, platform, date)
+        )
+    """)
+
+    # 定时发布任务表
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS scheduled_posts (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            content_id INTEGER NOT NULL,
+            platform TEXT NOT NULL,
+            scheduled_at TIMESTAMP NOT NULL,
+            status TEXT DEFAULT 'pending',
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (content_id) REFERENCES content(id)
+        )
+    """)
+
     # 创建默认管理员账户 (admin/admin123)
     cursor.execute("SELECT id FROM users WHERE username = 'admin'")
     if not cursor.fetchone():
@@ -194,8 +275,115 @@ def init_db():
             ("admin", password_hash, "admin@sidehustle.local", "admin")
         )
 
+    # 初始化默认角色和权限
+    _init_rbac_data(conn)
+
     conn.commit()
     conn.close()
+
+
+def _init_rbac_data(conn):
+    """初始化 RBAC 默认数据"""
+    cursor = conn.cursor()
+
+    # 检查是否已初始化
+    cursor.execute("SELECT COUNT(*) FROM roles")
+    if cursor.fetchone()[0] > 0:
+        return
+
+    # 创建默认角色
+    roles = [
+        ("admin", "系统管理员"),
+        ("owner", "所有者"),
+        ("editor", "内容编辑"),
+        ("viewer", "查看者"),
+    ]
+    cursor.executemany(
+        "INSERT INTO roles (name, description) VALUES (?, ?)",
+        roles
+    )
+
+    # 创建默认权限
+    permissions = [
+        ("content:create", "创建内容", "content", "create"),
+        ("content:read", "查看内容", "content", "read"),
+        ("content:edit", "编辑内容", "content", "edit"),
+        ("content:delete", "删除内容", "content", "delete"),
+        ("content:publish", "发布内容", "content", "publish"),
+        ("platform:connect", "连接平台", "platform", "connect"),
+        ("platform:manage", "管理平台", "platform", "manage"),
+        ("platform:publish", "平台发布", "platform", "publish"),
+        ("analytics:view", "查看分析", "analytics", "view"),
+        ("analytics:edit", "编辑分析数据", "analytics", "edit"),
+        ("user:manage", "管理用户", "user", "manage"),
+        ("material:upload", "上传素材", "material", "upload"),
+        ("material:manage", "管理素材", "material", "manage"),
+        ("campaign:manage", "管理活动", "campaign", "manage"),
+        ("settings:manage", "系统设置", "settings", "manage"),
+    ]
+    cursor.executemany(
+        "INSERT INTO permissions (name, description, resource, action) VALUES (?, ?, ?, ?)",
+        permissions
+    )
+
+    # admin 角色拥有所有权限
+    cursor.execute("SELECT id FROM roles WHERE name = 'admin'")
+    admin_role_id = cursor.fetchone()[0]
+    cursor.execute("SELECT id FROM permissions")
+    permission_ids = [row[0] for row in cursor.fetchall()]
+    for perm_id in permission_ids:
+        cursor.execute(
+            "INSERT INTO role_permissions (role_id, permission_id) VALUES (?, ?)",
+            (admin_role_id, perm_id)
+        )
+
+    # owner 角色拥有大部分权限（除了用户管理和系统设置）
+    cursor.execute("SELECT id FROM roles WHERE name = 'owner'")
+    owner_role_id = cursor.fetchone()[0]
+    owner_permissions = [
+        "content:create", "content:read", "content:edit", "content:delete", "content:publish",
+        "platform:connect", "platform:manage", "platform:publish",
+        "analytics:view", "analytics:edit",
+        "material:upload", "material:manage", "campaign:manage"
+    ]
+    for perm_name in owner_permissions:
+        cursor.execute("SELECT id FROM permissions WHERE name = ?", (perm_name,))
+        perm_id = cursor.fetchone()
+        if perm_id:
+            cursor.execute(
+                "INSERT INTO role_permissions (role_id, permission_id) VALUES (?, ?)",
+                (owner_role_id, perm_id[0])
+            )
+
+    # editor 角色拥有内容操作权限
+    cursor.execute("SELECT id FROM roles WHERE name = 'editor'")
+    editor_role_id = cursor.fetchone()[0]
+    editor_permissions = [
+        "content:create", "content:read", "content:edit",
+        "platform:connect", "platform:publish",
+        "analytics:view", "material:upload"
+    ]
+    for perm_name in editor_permissions:
+        cursor.execute("SELECT id FROM permissions WHERE name = ?", (perm_name,))
+        perm_id = cursor.fetchone()
+        if perm_id:
+            cursor.execute(
+                "INSERT INTO role_permissions (role_id, permission_id) VALUES (?, ?)",
+                (editor_role_id, perm_id[0])
+            )
+
+    # viewer 角色只有查看权限
+    cursor.execute("SELECT id FROM roles WHERE name = 'viewer'")
+    viewer_role_id = cursor.fetchone()[0]
+    viewer_permissions = ["content:read", "analytics:view"]
+    for perm_name in viewer_permissions:
+        cursor.execute("SELECT id FROM permissions WHERE name = ?", (perm_name,))
+        perm_id = cursor.fetchone()
+        if perm_id:
+            cursor.execute(
+                "INSERT INTO role_permissions (role_id, permission_id) VALUES (?, ?)",
+                (viewer_role_id, perm_id[0])
+            )
 
 
 def hash_password(password: str) -> str:
@@ -782,3 +970,304 @@ def mark_content_published(content_id: int, platform: str) -> dict:
     conn.commit()
     conn.close()
     return {"published": True}
+
+
+# ============================================
+# RBAC 权限管理
+# ============================================
+
+def get_user_roles(user_id: int) -> list:
+    """获取用户的所有角色"""
+    conn = get_db()
+    cursor = conn.cursor()
+    cursor.execute("""
+        SELECT r.id, r.name, r.description, ur.scope
+        FROM roles r
+        JOIN user_roles ur ON r.id = ur.role_id
+        WHERE ur.user_id = ?
+    """, (user_id,))
+    rows = cursor.fetchall()
+    conn.close()
+    return [dict(row) for row in rows]
+
+
+def assign_role_to_user(user_id: int, role_name: str, scope: str = "global") -> dict:
+    """为用户分配角色"""
+    conn = get_db()
+    cursor = conn.cursor()
+    cursor.execute("SELECT id FROM roles WHERE name = ?", (role_name,))
+    role = cursor.fetchone()
+    if not role:
+        conn.close()
+        return {"error": f"角色 {role_name} 不存在"}
+
+    role_id = role[0]
+    try:
+        cursor.execute(
+            "INSERT INTO user_roles (user_id, role_id, scope) VALUES (?, ?, ?)",
+            (user_id, role_id, scope)
+        )
+        conn.commit()
+        conn.close()
+        return {"success": True, "message": f"已分配角色 {role_name}"}
+    except sqlite3.IntegrityError:
+        conn.close()
+        return {"error": "用户已有该角色"}
+
+
+def get_role_permissions(role_id: int) -> list:
+    """获取角色的所有权限"""
+    conn = get_db()
+    cursor = conn.cursor()
+    cursor.execute("""
+        SELECT p.*
+        FROM permissions p
+        JOIN role_permissions rp ON p.id = rp.permission_id
+        WHERE rp.role_id = ?
+    """, (role_id,))
+    rows = cursor.fetchall()
+    conn.close()
+    return [dict(row) for row in rows]
+
+
+def get_user_permissions(user_id: int) -> list:
+    """获取用户的所有权限（合并所有角色）"""
+    conn = get_db()
+    cursor = conn.cursor()
+    cursor.execute("""
+        SELECT DISTINCT p.name, p.resource, p.action
+        FROM permissions p
+        JOIN role_permissions rp ON p.id = rp.permission_id
+        JOIN user_roles ur ON rp.role_id = ur.role_id
+        WHERE ur.user_id = ?
+    """, (user_id,))
+    rows = cursor.fetchall()
+    conn.close()
+    return [dict(row) for row in rows]
+
+
+def check_user_permission(user_id: int, permission: str) -> bool:
+    """检查用户是否有指定权限"""
+    # admin 用户拥有所有权限
+    user = get_user_by_id(user_id)
+    if user and user.get("role") == "admin":
+        return True
+
+    conn = get_db()
+    cursor = conn.cursor()
+    cursor.execute("""
+        SELECT COUNT(*)
+        FROM user_roles ur
+        JOIN role_permissions rp ON ur.role_id = rp.role_id
+        JOIN permissions p ON rp.permission_id = p.id
+        WHERE ur.user_id = ? AND p.name = ?
+    """, (user_id, permission))
+    count = cursor.fetchone()[0]
+    conn.close()
+    return count > 0
+
+
+def check_user_resource_access(user_id: int, resource: str, action: str, owner_user_id: int = None) -> bool:
+    """检查用户是否有资源操作权限"""
+    # admin 可以操作所有资源
+    user = get_user_by_id(user_id)
+    if user and user.get("role") == "admin":
+        return True
+
+    # 检查具体权限
+    permission_name = f"{resource}:{action}"
+    has_permission = check_user_permission(user_id, permission_name)
+
+    if not has_permission:
+        return False
+
+    # 如果权限是 owner/editor 级别，检查是否是资源所有者
+    if action in ["edit", "delete", "publish"]:
+        if owner_user_id and owner_user_id != user_id:
+            # 非所有者，owner 角色可以，editor 不行
+            user_roles = get_user_roles(user_id)
+            role_names = [r["name"] for r in user_roles]
+            if "owner" in role_names or "admin" in role_names:
+                return True
+            return False
+
+    return True
+
+
+def get_all_roles() -> list:
+    """获取所有角色"""
+    conn = get_db()
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM roles")
+    rows = cursor.fetchall()
+    conn.close()
+    return [dict(row) for row in rows]
+
+
+def get_all_permissions() -> list:
+    """获取所有权限"""
+    conn = get_db()
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM permissions")
+    rows = cursor.fetchall()
+    conn.close()
+    return [dict(row) for row in rows]
+
+
+# ============================================
+# 数据分析管理
+# ============================================
+
+def upsert_analytics(user_id: int, platform: str, date: str, **kwargs) -> dict:
+    """更新或创建分析数据"""
+    conn = get_db()
+    cursor = conn.cursor()
+    cursor.execute("""
+        INSERT INTO analytics (user_id, platform, date, views, likes, comments, shares, followers, revenue)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ON CONFLICT(user_id, platform, date) DO UPDATE SET
+            views = COALESCE(excluded.views, views),
+            likes = COALESCE(excluded.likes, likes),
+            comments = COALESCE(excluded.comments, comments),
+            shares = COALESCE(excluded.shares, shares),
+            followers = COALESCE(excluded.followers, followers),
+            revenue = COALESCE(excluded.revenue, revenue)
+    """, (
+        user_id, platform, date,
+        kwargs.get("views", 0),
+        kwargs.get("likes", 0),
+        kwargs.get("comments", 0),
+        kwargs.get("shares", 0),
+        kwargs.get("followers", 0),
+        kwargs.get("revenue", 0)
+    ))
+    conn.commit()
+    conn.close()
+    return {"success": True}
+
+
+def get_user_analytics(user_id: int, platform: str = None, days: int = 30) -> list:
+    """获取用户分析数据"""
+    conn = get_db()
+    cursor = conn.cursor()
+    if platform:
+        cursor.execute("""
+            SELECT * FROM analytics
+            WHERE user_id = ? AND platform = ?
+            ORDER BY date DESC LIMIT ?
+        """, (user_id, platform, days))
+    else:
+        cursor.execute("""
+            SELECT * FROM analytics
+            WHERE user_id = ?
+            ORDER BY date DESC LIMIT ?
+        """, (user_id, days))
+    rows = cursor.fetchall()
+    conn.close()
+    return [dict(row) for row in rows]
+
+
+def get_analytics_summary(user_id: int) -> dict:
+    """获取分析数据汇总"""
+    conn = get_db()
+    cursor = conn.cursor()
+
+    # 总阅读量/播放量
+    cursor.execute("""
+        SELECT COALESCE(SUM(views), 0) as total_views,
+               COALESCE(SUM(likes), 0) as total_likes,
+               COALESCE(SUM(comments), 0) as total_comments,
+               COALESCE(SUM(shares), 0) as total_shares,
+               COALESCE(SUM(revenue), 0) as total_revenue
+        FROM analytics WHERE user_id = ?
+    """, (user_id,))
+    totals = dict(cursor.fetchone())
+
+    # 平台分布
+    cursor.execute("""
+        SELECT platform, SUM(views) as views, SUM(revenue) as revenue
+        FROM analytics WHERE user_id = ?
+        GROUP BY platform
+    """, (user_id,))
+    platforms = [dict(row) for row in cursor.fetchall()]
+
+    # 近期趋势（最近7天）
+    cursor.execute("""
+        SELECT date, SUM(views) as views, SUM(revenue) as revenue
+        FROM analytics WHERE user_id = ?
+        AND date >= date('now', '-7 days')
+        GROUP BY date ORDER BY date
+    """, (user_id,))
+    trend = [dict(row) for row in cursor.fetchall()]
+
+    conn.close()
+
+    return {
+        "totals": totals,
+        "platforms": platforms,
+        "trend": trend
+    }
+
+
+# ============================================
+# 定时发布管理
+# ============================================
+
+def create_scheduled_post(content_id: int, platform: str, scheduled_at: str) -> dict:
+    """创建定时发布任务"""
+    conn = get_db()
+    cursor = conn.cursor()
+    cursor.execute("""
+        INSERT INTO scheduled_posts (content_id, platform, scheduled_at)
+        VALUES (?, ?, ?)
+    """, (content_id, platform, scheduled_at))
+    conn.commit()
+    post_id = cursor.lastrowid
+    conn.close()
+    return {"id": post_id, "scheduled_at": scheduled_at}
+
+
+def get_scheduled_posts(status: str = None) -> list:
+    """获取定时发布任务"""
+    conn = get_db()
+    cursor = conn.cursor()
+    if status:
+        cursor.execute("""
+            SELECT sp.*, c.title, c.body
+            FROM scheduled_posts sp
+            JOIN content c ON sp.content_id = c.id
+            WHERE sp.status = ?
+            ORDER BY sp.scheduled_at
+        """, (status,))
+    else:
+        cursor.execute("""
+            SELECT sp.*, c.title, c.body
+            FROM scheduled_posts sp
+            JOIN content c ON sp.content_id = c.id
+            ORDER BY sp.scheduled_at
+        """)
+    rows = cursor.fetchall()
+    conn.close()
+    return [dict(row) for row in rows]
+
+
+def update_scheduled_post_status(post_id: int, status: str) -> dict:
+    """更新定时发布任务状态"""
+    conn = get_db()
+    cursor = conn.cursor()
+    cursor.execute("""
+        UPDATE scheduled_posts SET status = ? WHERE id = ?
+    """, (status, post_id))
+    conn.commit()
+    conn.close()
+    return {"updated": cursor.rowcount > 0}
+
+
+def cancel_scheduled_post(post_id: int) -> dict:
+    """取消定时发布任务"""
+    conn = get_db()
+    cursor = conn.cursor()
+    cursor.execute("DELETE FROM scheduled_posts WHERE id = ?", (post_id,))
+    conn.commit()
+    conn.close()
+    return {"deleted": cursor.rowcount > 0}
