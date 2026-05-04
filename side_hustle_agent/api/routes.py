@@ -651,13 +651,51 @@ async def publish_content_api(content_id: int, platform: str, request: Request):
 
     # 创建发布日志
     log = create_publish_log(content_id, platform)
+    update_publish_log(log["id"], "publishing")
 
-    # TODO: 调用平台 API 实际发布
-    # 这里先模拟成功
-    update_publish_log(log["id"], "success", published_url=f"https://example.com/{content_id}",
-                      published_at=datetime.now().isoformat())
+    try:
+        # 获取平台账号
+        from ..core.database import get_user_platform_accounts
+        accounts = get_user_platform_accounts(user["user_id"])
+        platform_account = next((a for a in accounts if a["platform"] == platform), None)
 
-    return {"success": True, "log": log}
+        if not platform_account:
+            update_publish_log(log["id"], "failed", error_message="未连接该平台账号")
+            return {"success": False, "message": "请先连接平台账号"}
+
+        # 调用平台 API 发布
+        from ..platforms.base import publish_to_platform
+
+        title = content.get("title", "")
+        body = content.get("body", "")
+
+        result = await publish_to_platform(
+            platform_id=platform,
+            title=title,
+            content=body,
+            access_token=platform_account.get("access_token", ""),
+            refresh_token=platform_account.get("refresh_token", ""),
+        )
+
+        if result.success:
+            update_publish_log(
+                log["id"], "success",
+                published_url=result.published_url,
+                published_at=datetime.now().isoformat()
+            )
+            return {
+                "success": True,
+                "log": log,
+                "published_url": result.published_url,
+                "platform_content_id": result.platform_content_id,
+            }
+        else:
+            update_publish_log(log["id"], "failed", error_message=result.error)
+            return {"success": False, "message": f"发布失败: {result.error}"}
+
+    except Exception as e:
+        update_publish_log(log["id"], "failed", error_message=str(e))
+        return {"success": False, "message": f"发布异常: {str(e)}"}
 
 
 @router.get("/content/{content_id}/logs")

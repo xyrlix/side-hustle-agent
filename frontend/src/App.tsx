@@ -14,6 +14,8 @@ import ScheduledPostsManager from "./components/ScheduledPostsManager";
 import HotTopicsPanel from "./components/HotTopicsPanel";
 import ContentCheckPanel from "./components/ContentCheckPanel";
 import ROIAnalysisPanel from "./components/ROIAnalysisPanel";
+import { ConfigProvider } from "antd";
+import zhCN from "antd/locale/zh_CN";
 
 type Page = "dashboard" | "hustle" | "content" | "analytics" | "platforms" | "materials" | "scheduled" | "hottopics" | "check" | "roi";
 type Role = "admin" | "owner" | "editor" | "viewer" | "guest";
@@ -404,10 +406,10 @@ export default function App() {
   // 未登录显示公共页面
   if (!currentUser) {
     return (
-      <>
+      <ConfigProvider locale={zhCN}>
         <PublicLanding onLogin={() => setShowLogin(true)} />
         {showLogin && <LoginModal onClose={() => setShowLogin(false)} onLogin={handleLogin} />}
-      </>
+      </ConfigProvider>
     );
   }
 
@@ -420,9 +422,17 @@ export default function App() {
   const visibleSections = WORKFLOW_SECTIONS.filter(section => section.roles.includes(role));
 
   return (
+    <ConfigProvider locale={zhCN}>
     <div className="min-h-screen bg-gray-100 flex">
-      {/* 侧边栏 - 白色系 */}
-      <aside className={`${sidebarOpen ? 'w-72' : 'w-20'} bg-white border-r border-gray-200 flex flex-col transition-all duration-300 sticky top-0 h-screen`}>
+      {/* 移动端遮罩 */}
+      {!sidebarOpen && <div className="fixed inset-0 bg-black/50 z-30 lg:hidden" onClick={() => setSidebarOpen(false)} />}
+
+      {/* 侧边栏 - 白色系 - 移动端抽屉式 */}
+      <aside className={`
+        fixed lg:sticky top-0 h-screen z-40 bg-white border-r border-gray-200 flex flex-col transition-all duration-300
+        ${sidebarOpen ? 'w-72' : 'w-0 lg:w-20'}
+        ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
+      `}>
         {/* Logo */}
         <div className="p-5 border-b border-gray-100">
           <div className="flex items-center gap-3">
@@ -454,7 +464,10 @@ export default function App() {
                   return (
                     <button
                       key={item}
-                      onClick={() => handleNavigate(item)}
+                      onClick={() => {
+                        handleNavigate(item)
+                        if (window.innerWidth < 1024) setSidebarOpen(false)
+                      }}
                       className={`w-full px-4 py-3 rounded-xl text-left flex items-center gap-3 transition-all ${
                         isActive
                           ? "bg-gradient-to-r from-violet-600 to-purple-600 text-white shadow-lg shadow-purple-500/30"
@@ -486,11 +499,19 @@ export default function App() {
       {/* 主内容区 */}
       <div className="flex-1 flex flex-col min-w-0">
         {/* 顶部栏 */}
-        <header className="bg-white border-b border-gray-200 px-8 py-5 sticky top-0 z-40 shadow-sm">
+        <header className="bg-white border-b border-gray-200 px-4 md:px-8 py-4 md:py-5 sticky top-0 z-40 shadow-sm">
           <div className="flex items-center justify-between">
-            <div>
+            <div className="flex items-center gap-3">
+              {/* 移动端菜单按钮 */}
+              <button
+                onClick={() => setSidebarOpen(true)}
+                className="lg:hidden p-2 hover:bg-gray-100 rounded-lg"
+              >
+                <span className="text-xl">☰</span>
+              </button>
+
               {/* 面包屑 */}
-              <div className="flex items-center gap-2 text-lg text-gray-400 mb-2">
+              <div className="flex items-center gap-2 text-lg text-gray-400 mb-0 md:mb-2">
                 <button onClick={() => setPage("dashboard")} className="hover:text-gray-600 transition-colors">工作台</button>
                 {isSubPage && (
                   <>
@@ -577,5 +598,6 @@ export default function App() {
       {showLogin && <LoginModal onClose={() => setShowLogin(false)} onLogin={handleLogin} />}
       {showAdmin && <AdminPanel onClose={() => setShowAdmin(false)} />}
     </div>
+    </ConfigProvider>
   );
 }

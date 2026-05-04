@@ -306,6 +306,228 @@ class ROIAnalyzer:
             ]
         }
 
+    def analyze_trend(self, historical_data: list[dict[str, Any]]) -> dict[str, Any]:
+        """
+        分析内容趋势（基于历史数据）
+
+        historical_data: [{"date": "2024-01", "views": int, "revenue": float}, ...]
+        """
+        if len(historical_data) < 2:
+            return {"trend": "insufficient_data", "message": "数据不足，无法分析趋势"}
+
+        # 按日期排序
+        sorted_data = sorted(historical_data, key=lambda x: x.get("date", ""))
+
+        # 计算环比变化
+        views_changes = []
+        revenue_changes = []
+
+        for i in range(1, len(sorted_data)):
+            prev_views = sorted_data[i-1].get("views", 0)
+            curr_views = sorted_data[i].get("views", 0)
+            prev_revenue = sorted_data[i-1].get("revenue", 0)
+            curr_revenue = sorted_data[i].get("revenue", 0)
+
+            if prev_views > 0:
+                views_changes.append((curr_views - prev_views) / prev_views * 100)
+            if prev_revenue > 0:
+                revenue_changes.append((curr_revenue - prev_revenue) / prev_revenue * 100)
+
+        # 计算平均增长率
+        avg_views_growth = sum(views_changes) / len(views_changes) if views_changes else 0
+        avg_revenue_growth = sum(revenue_changes) / len(revenue_changes) if revenue_changes else 0
+
+        # 判断趋势
+        if avg_views_growth > 10:
+            views_trend = "rising"
+        elif avg_views_growth < -10:
+            views_trend = "declining"
+        else:
+            views_trend = "stable"
+
+        if avg_revenue_growth > 10:
+            revenue_trend = "rising"
+        elif avg_revenue_growth < -10:
+            revenue_trend = "declining"
+        else:
+            revenue_trend = "stable"
+
+        # 预测下期值
+        latest = sorted_data[-1]
+        predicted_views = int(latest.get("views", 0) * (1 + avg_views_growth / 100))
+        predicted_revenue = round(latest.get("revenue", 0) * (1 + avg_revenue_growth / 100), 2)
+
+        return {
+            "views_trend": views_trend,
+            "revenue_trend": revenue_trend,
+            "avg_views_growth": round(avg_views_growth, 2),
+            "avg_revenue_growth": round(avg_revenue_growth, 2),
+            "predicted_views_next": predicted_views,
+            "predicted_revenue_next": predicted_revenue,
+            "confidence": min(len(historical_data) / 6, 1.0),  # 数据点越多置信度越高
+            "data_points": len(historical_data),
+        }
+
+    def score_content_quality(
+        self,
+        views: int,
+        likes: int,
+        comments: int,
+        shares: int,
+        revenue: float
+    ) -> dict[str, Any]:
+        """
+        内容质量评分模型（0-100分）
+
+        综合考虑：曝光、互动、收益
+        """
+        scores = {}
+
+        # 曝光得分（满分30）
+        if views >= 10000:
+            exposure_score = 30
+        elif views >= 5000:
+            exposure_score = 25
+        elif views >= 1000:
+            exposure_score = 20
+        elif views >= 500:
+            exposure_score = 15
+        elif views >= 100:
+            exposure_score = 10
+        else:
+            exposure_score = 5
+        scores["exposure"] = exposure_score
+
+        # 互动得分（满分30）
+        total_engagement = likes + comments + shares
+        if views > 0:
+            engagement_rate = total_engagement / views
+            if engagement_rate >= 0.1:
+                engagement_score = 30
+            elif engagement_rate >= 0.05:
+                engagement_score = 25
+            elif engagement_rate >= 0.02:
+                engagement_score = 20
+            elif engagement_rate >= 0.01:
+                engagement_score = 15
+            else:
+                engagement_score = 10
+        else:
+            engagement_score = 0
+        scores["engagement"] = engagement_score
+
+        # 收益得分（满分40）
+        if revenue >= 1000:
+            revenue_score = 40
+        elif revenue >= 500:
+            revenue_score = 35
+        elif revenue >= 100:
+            revenue_score = 30
+        elif revenue >= 50:
+            revenue_score = 25
+        elif revenue >= 10:
+            revenue_score = 20
+        else:
+            revenue_score = 15
+        scores["revenue"] = revenue_score
+
+        # 总分
+        total_score = exposure_score + engagement_score + revenue_score
+
+        # 评级
+        if total_score >= 90:
+            grade = "S"
+        elif total_score >= 75:
+            grade = "A"
+        elif total_score >= 60:
+            grade = "B"
+        elif total_score >= 45:
+            grade = "C"
+        else:
+            grade = "D"
+
+        # 改进建议
+        suggestions = []
+        if exposure_score < 20:
+            suggestions.append("提高曝光：优化标题和封面，增加分发渠道")
+        if engagement_score < 20:
+            suggestions.append("提升互动：在内容中增加互动引导，如提问、投票")
+        if revenue_score < 25:
+            suggestions.append("增加收益：考虑付费内容或更好的变现方式")
+
+        return {
+            "total_score": total_score,
+            "grade": grade,
+            "breakdown": scores,
+            "suggestions": suggestions,
+        }
+
+    def predict_performance(
+        self,
+        content_data: dict[str, Any]
+    ) -> dict[str, Any]:
+        """
+        预测内容表现
+
+        基于历史数据模型预测新内容的潜在表现
+        """
+        platform = content_data.get("platform", "wechat_public")
+        category = content_data.get("category", "")
+
+        # 平台基准数据
+        platform_benchmarks = {
+            "wechat_public": {"avg_views": 2000, "avg_likes": 50, "avg_comments": 10, "avg_revenue": 20},
+            "toutiao": {"avg_views": 5000, "avg_likes": 100, "avg_comments": 20, "avg_revenue": 40},
+            "xiaohongshu": {"avg_views": 3000, "avg_likes": 150, "avg_comments": 30, "avg_revenue": 50},
+            "zhihu": {"avg_views": 1500, "avg_likes": 30, "avg_comments": 15, "avg_revenue": 10},
+        }
+
+        benchmark = platform_benchmarks.get(platform, {"avg_views": 1000, "avg_likes": 30, "avg_comments": 5, "avg_revenue": 10})
+
+        # 基于内容的已知数据调整预测
+        views_confidence = 1.0 if "views" in content_data else 0.7
+
+        predicted = {
+            "expected_views": int(benchmark["avg_views"] * (content_data.get("boost_factor", 1.0))),
+            "expected_likes": int(benchmark["avg_likes"] * (content_data.get("boost_factor", 1.0))),
+            "expected_comments": int(benchmark["avg_comments"] * (content_data.get("boost_factor", 1.0))),
+            "expected_revenue": round(benchmark["avg_revenue"] * (content_data.get("boost_factor", 1.0)), 2),
+            "confidence": views_confidence,
+            "platform_recommendation": self._get_platform_recommendation(content_data),
+        }
+
+        return predicted
+
+    def _get_platform_recommendation(self, content_data: dict[str, Any]) -> list[dict[str, Any]]:
+        """获取平台推荐排序"""
+        recommendations = []
+        platforms = ["wechat_public", "toutiao", "xiaohongshu", "zhihu"]
+
+        content_type = content_data.get("content_type", "article")
+        has_video = content_data.get("has_video", False)
+
+        for platform in platforms:
+            score = 50  # 基础分
+
+            if platform == "xiaohongshu" and content_type in ["lifestyle", "product"]:
+                score += 30
+            if platform == "toutiao" and content_type in ["news", "tech"]:
+                score += 30
+            if platform == "wechat_public" and content_type == "article":
+                score += 25
+            if platform == "zhihu" and content_type in ["analysis", "tutorial"]:
+                score += 30
+
+            if has_video:
+                if platform in ["douyin", "bilibili"]:
+                    score += 40
+
+            recommendations.append({"platform": platform, "score": score, "reason": ""})
+
+        # 排序
+        recommendations.sort(key=lambda x: x["score"], reverse=True)
+        return recommendations[:3]
+
 
 # 全局单例
 _analyzer: ROIAnalyzer | None = None
